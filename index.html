@@ -189,7 +189,7 @@ input[type=checkbox]{accent-color:var(--acc)}
 const Conv = (() => {
   /* ---- RU settings: change these two if your Kruti Dev keyboard uses other keys ---- */
   const RU_SHORT = '#';   // रु  (e.g. रुपया -> #i;k)
-  const RU_LONG  = '$';   // रू  (e.g. रूप   -> $i)
+  const RU_LONG  = ':';   // रू  (e.g. स्वरूप -> Lo:i)
   const NUMBER_COLON = true; // Kruti Dev "1jw" heading marker -> "1:" (set false to keep रू)
   const H = '\u094D', NK = '\u093C';
   const NUK_PRE = {'क':'\u0958','ख':'\u0959','ग':'\u095A','ज':'\u095B','ड':'\u095C','ढ':'\u095D','फ':'\u095E','य':'\u095F'};
@@ -203,7 +203,7 @@ const Conv = (() => {
   const MT = {'\u093E':'k','\u0940':'h','\u0941':'q','\u0942':'w','\u0943':'`','\u0944':'`','\u0945':'W','\u0947':'s','\u0948':'S','\u094B':'ks','\u094C':'kS','\u0949':'kW'};
   const TAIL = {'\u0901':'¡','\u0902':'a','\u0903':'%'};
   const IND = {'अ':'v','आ':'vk','इ':'b','ई':'bZ','उ':'m','ऊ':'Å','ऋ':'_','ए':',','ऐ':',s','ओ':'vks','औ':'vkS','ऑ':'vkW','ऍ':',W','।':'A','॥':'AA','ं':'a','ँ':'¡','ः':'%','ॅ':'W','ॉ':'kW','ा':'k','ि':'f','ी':'h','ु':'q','ू':'w','ृ':'`','े':'s','ै':'S','ो':'ks','ौ':'kS','्':'~','़':'+','\u200D':'','\u200C':''};
-  const PUNCT = {'(':'¼',')':'½',',':']','.':'-','-':'&'};
+  const PUNCT = {'(':'¼',')':'½',',':']','.':'-','-':'&','?':'\\',':':'%'};   // ':' would print रू, '?' would print half-घ
   const CN = '[\\u0915-\\u0939]\\u093C?';
   const SYL = new RegExp(`(\\u0930\\u094D)?((?:${CN}\\u094D)*)(${CN})([\\u093E-\\u094C]*)([\\u0901\\u0902\\u0903]?)`, 'g');
 
@@ -234,7 +234,7 @@ const Conv = (() => {
   function unicodeToKruti(text) {
     if (!text) return '';
     let s = text.replace(/[\u0958-\u095F]/g, m => NUK_DEC[m]);
-    s = s.replace(/[().,\-]/g, m => PUNCT[m]);               // ASCII punctuation first
+    s = s.replace(/[().,\-?:]/g, m => PUNCT[m]);               // ASCII punctuation first
     s = s.replace(SYL, syllable);                             // consonant clusters
     s = s.replace(/[\u0900-\u097F\u200C\u200D]/g, m => IND[m] !== undefined ? IND[m] : m); // vowels, signs, danda
     return s;
@@ -261,7 +261,7 @@ const Conv = (() => {
     'd':'क','x':'ग','³':'ङ','p':'च','N':'छ','t':'ज','>':'झ','¥':'ञ','V':'ट','B':'ठ','M':'ड','<':'ढ',
     'r':'त','n':'द','u':'न','i':'प','Q':'फ','c':'ब','e':'म',';':'य','j':'र','y':'ल','G':'ळ','o':'व','l':'स','g':'ह',
     // punctuation
-    'A':'।','¼':'(','½':')','&':'-','-':'.','º':'.','°':'.',']':',','¿':'?','À':'!'
+    'A':'।','¼':'(','½':')','&':'-','-':'.','º':'.','°':'.',']':',','¿':'?','À':'!','\\':'?'
   };
   K2U[RU_SHORT] = 'रु'; K2U[RU_LONG] = 'रू';
   const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -280,6 +280,7 @@ const Conv = (() => {
     s = s.replace(/[\uE000\uE001]/g, '').replace(/\uE002/g, '.');
     s = s.replace(NUK_RE, (m, c) => NUK_PRE[c]);
     s = s.replace(/(^|[^\u0915-\u0939])\u093C/g, '$1+');     // a '+' with no letter before it is just a plus sign
+    s = s.replace(/([0-9])\s*ः/g, '$1:');
     if (NUMBER_COLON) s = s.replace(/([0-9])\s*रू\s*/g, '$1: ');
     return s;
   }
