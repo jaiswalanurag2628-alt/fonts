@@ -7,42 +7,123 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
 @font-face{font-family:'KrutiDev010';src:local('Kruti Dev 010'),local('KrutiDev010'),local('Kruti Dev 010 Regular'),local('Kruti_Dev_010');font-display:swap}
-:root{--bg:#f2f5f7;--card:#fff;--ink:#14212b;--mute:#5d6b76;--line:#d5dde3;--acc:#0f5c5c;--acc2:#0b4545;--warn:#b4531a}
-@media(prefers-color-scheme:dark){:root{--bg:#10171c;--card:#18222a;--ink:#e6edf1;--mute:#93a3af;--line:#2c3a45;--acc:#3fb5b0;--acc2:#5fd0cb;--warn:#f0a15f}}
+@property --angle{syntax:'<angle>';initial-value:0deg;inherits:false}
+:root{
+  color-scheme:light dark;
+  --bg:light-dark(#eef3f4,#0d1418);
+  --card:light-dark(#ffffffcc,#16212bcc);
+  --solid:light-dark(#fff,#16212b);
+  --ink:light-dark(#12202a,#e6edf1);
+  --mute:light-dark(#566670,#93a3af);
+  --line:light-dark(#d3dde2,#2a3a46);
+  --acc:light-dark(#0d6b66,#41c0b8);
+  --acc2:light-dark(#094a47,#7ddcd5);
+  --warn:light-dark(#b4531a,#f0a15f);
+  --r:14px;
+  --ease:cubic-bezier(.22,1,.36,1);
+}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif}
-header{padding:18px 24px;border-bottom:1px solid var(--line);background:var(--card)}
-header h1{margin:0;font-size:20px}header p{margin:2px 0 0;color:var(--mute);font-size:13px}
-main{max-width:1200px;margin:0 auto;padding:20px;display:grid;gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px}
-.drop{padding:16px 18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-style:dashed;cursor:pointer;position:relative}
-.drop.over{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--card))}
+html{scroll-behavior:smooth}
+body{
+  margin:0;color:var(--ink);font:15px/1.55 system-ui,-apple-system,'Segoe UI',sans-serif;min-height:100dvh;
+  background:
+    radial-gradient(60rem 30rem at 10% -10%,color-mix(in oklab,var(--acc) 16%,transparent),transparent 70%),
+    radial-gradient(50rem 28rem at 100% 0%,color-mix(in oklab,#e8923a 12%,transparent),transparent 70%),
+    var(--bg);
+  background-attachment:fixed;
+}
+/* header: frosted, gains a shadow as the page scrolls */
+header{
+  position:sticky;top:0;z-index:5;padding:16px clamp(16px,4vw,32px);
+  background:color-mix(in oklab,var(--solid) 70%,transparent);
+  backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);
+  border-bottom:1px solid var(--line);
+}
+@supports (animation-timeline:scroll()){
+  header{animation:hdr linear both;animation-timeline:scroll();animation-range:0 120px}
+  @keyframes hdr{from{box-shadow:0 0 0 transparent}to{box-shadow:0 10px 30px -12px #0006}}
+}
+header h1{
+  margin:0;font:700 clamp(24px,4vw,34px)/1.15 'Noto Sans Devanagari','Mangal','Nirmala UI',system-ui,sans-serif;
+  background:linear-gradient(var(--angle),var(--acc),#e8923a,var(--acc2),var(--acc));
+  -webkit-background-clip:text;background-clip:text;color:transparent;
+  animation:spin 9s linear infinite;text-wrap:balance;
+}
+@keyframes spin{to{--angle:360deg}}
+header p{margin:2px 0 0;color:var(--mute);font-size:13px;text-wrap:balance}
+
+main{max-width:1200px;margin:0 auto;padding:clamp(14px,3vw,28px);display:grid;gap:16px}
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+  backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+  box-shadow:0 1px 0 #fff3 inset,0 12px 32px -22px #0007;
+  transition:border-color .25s,box-shadow .35s var(--ease),transform .35s var(--ease);
+}
+/* the one orchestrated moment: staged entrance on load */
+main>*{animation:rise .7s var(--ease) both}
+main>:nth-child(2){animation-delay:.08s}
+main>:nth-child(3){animation-delay:.16s}
+@keyframes rise{from{opacity:0;translate:0 18px;filter:blur(6px)}}
+.panes .card:hover,.panes .card:focus-within{border-color:color-mix(in oklab,var(--acc) 55%,var(--line));box-shadow:0 18px 44px -24px color-mix(in oklab,var(--acc) 60%,#000)}
+
+/* drop zone: rotating gradient ring while a file hovers */
+.drop{padding:18px 20px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-style:dashed;cursor:pointer;position:relative;isolation:isolate}
+.drop::before{content:"";position:absolute;inset:-2px;border-radius:calc(var(--r) + 2px);padding:2px;z-index:-1;opacity:0;transition:opacity .25s;
+  background:conic-gradient(from var(--angle),var(--acc),#e8923a,var(--acc2),var(--acc));
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:spin 3s linear infinite}
+.drop:hover,.drop.over{transform:translateY(-2px)}
+.drop:hover::before,.drop.over::before{opacity:1}
+.drop.over{background:color-mix(in oklab,var(--acc) 10%,var(--card))}
 .drop input{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
-.drop b{display:block}.drop small{color:var(--mute)}
+.drop b{display:block;font-size:16px}.drop small{color:var(--mute)}
+
 .bar{padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:8px}
-button,.btn{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 12px;border-radius:7px;cursor:pointer}
-button:hover{border-color:var(--acc)}
-button:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
-.tabs button{border:0;background:transparent}
-.tabs button.on{background:var(--card);font-weight:600;box-shadow:0 0 0 1px var(--line)}
-.primary{background:var(--acc);color:#fff;border-color:var(--acc)}
-.primary:hover{background:var(--acc2)}
+.tabs{display:flex;gap:2px;background:color-mix(in oklab,var(--ink) 7%,transparent);padding:4px;border-radius:11px}
+button,.btn{
+  font:inherit;font-size:13px;border:1px solid var(--line);background:var(--solid);color:var(--ink);
+  padding:7px 13px;border-radius:9px;cursor:pointer;
+  transition:transform .15s var(--ease),background .2s,border-color .2s,box-shadow .2s,color .2s;
+}
+button:hover,.btn:hover{border-color:var(--acc);box-shadow:0 6px 16px -10px var(--acc)}
+button:active,.btn:active{transform:scale(.96)}
+button:focus-visible,textarea:focus-visible,label:focus-within{outline:2px solid var(--acc);outline-offset:2px}
+.tabs button{border-color:transparent;background:transparent;box-shadow:none}
+.tabs button.on{background:var(--solid);font-weight:600;color:var(--acc);box-shadow:0 2px 8px -3px #0005}
+.primary{background:linear-gradient(135deg,var(--acc),color-mix(in oklab,var(--acc) 60%,#e8923a));color:#fff;border-color:transparent;font-weight:600}
+.primary:hover{filter:brightness(1.08);border-color:transparent}
 .primary[hidden]{display:none}
+#viewWrap button.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+
 .panes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
 @media(max-width:800px){.panes{grid-template-columns:1fr}}
-.pane{display:flex;flex-direction:column;min-height:420px}
-.ph{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.pane{display:flex;flex-direction:column;min-height:440px;overflow:hidden;position:relative}
+.ph{padding:11px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
 .ph strong{font-size:14px}
-textarea{flex:1;width:100%;border:0;background:transparent;color:var(--ink);padding:14px;resize:none;font-size:17px;line-height:1.7;min-height:300px}
+textarea{flex:1;width:100%;border:0;background:transparent;color:var(--ink);padding:14px;resize:none;font-size:17px;line-height:1.75;min-height:300px;caret-color:var(--acc)}
+textarea::selection{background:color-mix(in oklab,var(--acc) 35%,transparent)}
 .deva{font-family:'Noto Sans Devanagari','Mangal','Nirmala UI',sans-serif}
 .kruti{font-family:'KrutiDev010','Kruti Dev 010',sans-serif;font-size:21px}
 .latin{font-family:system-ui,sans-serif;font-size:15px}
-.pf{padding:8px 14px;border-top:1px solid var(--line);color:var(--mute);font-size:12px;display:flex;justify-content:space-between}
-.note{margin:0 14px 12px;padding:8px 10px;border-radius:8px;font-size:12px;border:1px solid var(--line);color:var(--mute)}
-#toast{position:fixed;top:16px;right:16px;background:#14212b;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;opacity:0;transform:translateY(-10px);transition:.25s;pointer-events:none;z-index:9;max-width:340px}
-#toast.show{opacity:1;transform:none}#toast.err{background:var(--warn)}
-label.sw{font-size:13px;color:var(--mute);display:inline-flex;gap:6px;align-items:center}
+.pf{padding:8px 14px;border-top:1px solid var(--line);color:var(--mute);font-size:12px;display:flex;justify-content:space-between;gap:8px}
+.note{margin:0 14px 12px;padding:9px 11px;border-radius:10px;font-size:12px;border:1px solid var(--line);color:var(--mute);background:color-mix(in oklab,var(--ink) 4%,transparent)}
+/* sweep across the output pane whenever new text is produced */
+.pane.flash::after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(100deg,transparent 30%,color-mix(in oklab,var(--acc) 22%,transparent) 50%,transparent 70%);
+  translate:-100% 0;animation:sweep .8s var(--ease)}
+@keyframes sweep{to{translate:100% 0}}
+
+#toast{position:fixed;top:16px;right:16px;background:var(--ink);color:var(--bg);padding:11px 16px;border-radius:11px;font-size:13px;
+  opacity:0;translate:0 -12px;scale:.97;transition:opacity .3s,translate .4s var(--ease),scale .4s var(--ease);pointer-events:none;z-index:9;max-width:340px;
+  box-shadow:0 16px 40px -16px #000a}
+#toast.show{opacity:1;translate:0 0;scale:1}#toast.err{background:var(--warn);color:#1a0d02}
+label.sw{font-size:13px;color:var(--mute);display:inline-flex;gap:6px;align-items:center;cursor:pointer}
+input[type=checkbox]{accent-color:var(--acc)}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+  header h1{color:var(--acc);background:none}
+}
 </style>
 </head>
 <body>
@@ -366,6 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function run(rebuild = false) {
     output.value = convertText(input.value, mode);
     stats();
+    if (output.value) { const pn = output.closest('.pane'); pn.classList.remove('flash'); void pn.offsetWidth; pn.classList.add('flash'); }
     if (rebuild) refreshDocx();
   }
 
