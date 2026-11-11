@@ -6,7 +6,7 @@
 <title>अक्षर सेतु – Mangal ⇄ Kruti Dev 010 Converter</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-@font-face{font-family:'KrutiDev010';src:url('https://cdn.jsdelivr.net/gh/arunb/kruti-dev-font@master/fonts/Kruti_Dev_010.ttf') format('truetype'),url('https://raw.githubusercontent.com/arunb/kruti-dev-font/master/fonts/Kruti_Dev_010.ttf') format('truetype');font-display:swap}
+@font-face{font-family:'KrutiDev010';src:local('Kruti Dev 010'),local('KrutiDev010'),local('Kruti Dev 010 Regular'),local('Kruti_Dev_010');font-display:swap}
 :root{--bg:#f2f5f7;--card:#fff;--ink:#14212b;--mute:#5d6b76;--line:#d5dde3;--acc:#0f5c5c;--acc2:#0b4545;--warn:#b4531a}
 @media(prefers-color-scheme:dark){:root{--bg:#10171c;--card:#18222a;--ink:#e6edf1;--mute:#93a3af;--line:#2c3a45;--acc:#3fb5b0;--acc2:#5fd0cb;--warn:#f0a15f}}
 *{box-sizing:border-box}
@@ -96,6 +96,7 @@ label.sw{font-size:13px;color:var(--mute);display:inline-flex;gap:6px;align-item
           <button id="btnDocx">.docx</button>
         </span></div>
       <textarea id="output" class="kruti" readonly spellcheck="false" placeholder="Converted text appears here…"></textarea>
+      <div class="note" id="fontWarn" style="display:none;color:var(--warn)">Kruti Dev 010 is not installed on this computer, so the visual preview shows plain letters. The conversion and the .docx download are not affected. Install the font, or use <b>Load .ttf font</b> above.</div>
       <div class="note" id="krutiNote">Copy gives the raw keystrokes. Paste into Word or a DTP tool and set the font to <b>Kruti Dev 010</b>.</div>
       <div class="pf"><span>Chars: <b id="outC">0</b> · Words: <b id="outW">0</b></span><span id="outHint"></span></div>
     </div>
@@ -326,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const SAMPLES = {
     m2k: 'भारत देश विविधताओं से भरा एक महान और सुंदर राष्ट्र है। शिक्षा का स्वरूप क्या है? पढ़ाई, कर्म, धर्म, विद्यालय, क्षमा, संस्कृति।',
-    k2m: 'Hkkjr ns\'k fofo/krkvksa ls Hkjk ,d egku vkSj lqanj jk"Vª gSA f'k{kk dk Lo:i D;k gS\\ i<+kbZ] deZ] /keZ] fo|ky;] {kek] laLÑfr',
+    k2m: "Hkkjr ns'k fofo/krkvksa ls Hkjk ,d egku vkSj lqanj jk\"Vª gSA f'k{kk dk Lo:i D;k gS\\ i<+kbZ] deZ] /keZ] fo|ky;] {kek] laLÑfr",
     r2k: 'mera bharat mahan desh hai. namaste aap sabhi ka swagat hai.'
   };
   const META = {
@@ -352,6 +353,7 @@ document.addEventListener('DOMContentLoaded', () => {
     $('viewWrap').style.display = 'inline';
     $('vVisual').classList.toggle('on', visual); $('vRaw').classList.toggle('on', !visual);
     $('krutiNote').style.display = outKruti ? '' : 'none';
+    $('fontWarn').style.display = (visual && (outKruti || mode === 'k2m') && !document.fonts.check('16px KrutiDev010')) ? '' : 'none';
   }
   const convertAll = () => $('allRuns').checked;
 
@@ -411,7 +413,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const f = e.target.files[0]; if (!f) return;
     try {
       const face = new FontFace('KrutiDev010', await f.arrayBuffer()); await face.load();
-      document.fonts.add(face); toast('Font loaded: ' + f.name); fonts();
+      document.fonts.add(face); toast('Font loaded: ' + f.name); fonts(); run();
     } catch { toast('Could not load that font file', false); }
   });
 
@@ -442,6 +444,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) { console.error(err); toast('Could not read this file. Is it a valid .docx?', false); }
   }
 
+  document.fonts.ready.then(fonts);
   setMode('m2k', false);
   input.value = SAMPLES.m2k; run();
 });
