@@ -1,1450 +1,451 @@
 <!DOCTYPE html>
-<html lang="hi" class="h-full bg-slate-50">
+<html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hindi Font Converter & Transliteration Suite | Mangal & Kruti Dev 010</title>
-  
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- Google Fonts: Inter & Noto Sans Devanagari -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
-  
-  <!-- FontAwesome Icons for UI -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-  <!-- JSZip for low-level DOCX archive manipulation (Preserves 100% layout, alignment & tables) -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-            mangal: ['Noto Sans Devanagari', 'sans-serif'],
-            kruti: ['KrutiDev010', 'Kruti Dev 010', 'KrutiDev', 'serif'],
-          },
-          colors: {
-            primary: {
-              50: '#eff6ff',
-              100: '#dbeafe',
-              500: '#3b82f6',
-              600: '#2563eb',
-              700: '#1d4ed8',
-            },
-            saffron: {
-              50: '#fff7ed',
-              500: '#f97316',
-              600: '#ea580c',
-            }
-          }
-        }
-      }
-    }
-  </script>
-
-  <style>
-    /* High-availability CDN embeds for Kruti Dev 010 */
-    @font-face {
-      font-family: 'KrutiDev010';
-      src: url('https://raw.githubusercontent.com/arunb/kruti-dev-font/master/fonts/Kruti_Dev_010.ttf') format('truetype'),
-           url('https://cdn.jsdelivr.net/gh/arunb/kruti-dev-font@master/fonts/Kruti_Dev_010.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
-    }
-
-    @font-face {
-      font-family: 'Kruti Dev 010';
-      src: url('https://raw.githubusercontent.com/arunb/kruti-dev-font/master/fonts/Kruti_Dev_010.ttf') format('truetype'),
-           url('https://cdn.jsdelivr.net/gh/arunb/kruti-dev-font@master/fonts/Kruti_Dev_010.ttf') format('truetype');
-      font-weight: normal;
-      font-style: normal;
-      font-display: swap;
-    }
-
-    .font-kruti-render {
-      font-family: 'KrutiDev010', 'Kruti Dev 010', 'KrutiDev', 'Noto Sans Devanagari', sans-serif !important;
-    }
-    
-    .custom-scrollbar::-webkit-scrollbar {
-      width: 6px;
-      height: 6px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-      background: #f1f5f9;
-      border-radius: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
-      border-radius: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>अक्षर सेतु – Mangal ⇄ Kruti Dev 010 Converter</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+@font-face{font-family:'KrutiDev010';src:url('https://cdn.jsdelivr.net/gh/arunb/kruti-dev-font@master/fonts/Kruti_Dev_010.ttf') format('truetype'),url('https://raw.githubusercontent.com/arunb/kruti-dev-font/master/fonts/Kruti_Dev_010.ttf') format('truetype');font-display:swap}
+:root{--bg:#f2f5f7;--card:#fff;--ink:#14212b;--mute:#5d6b76;--line:#d5dde3;--acc:#0f5c5c;--acc2:#0b4545;--warn:#b4531a}
+@media(prefers-color-scheme:dark){:root{--bg:#10171c;--card:#18222a;--ink:#e6edf1;--mute:#93a3af;--line:#2c3a45;--acc:#3fb5b0;--acc2:#5fd0cb;--warn:#f0a15f}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,'Segoe UI',sans-serif}
+header{padding:18px 24px;border-bottom:1px solid var(--line);background:var(--card)}
+header h1{margin:0;font-size:20px}header p{margin:2px 0 0;color:var(--mute);font-size:13px}
+main{max-width:1200px;margin:0 auto;padding:20px;display:grid;gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px}
+.drop{padding:16px 18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-style:dashed;cursor:pointer;position:relative}
+.drop.over{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 8%,var(--card))}
+.drop input{display:none}
+.drop b{display:block}.drop small{color:var(--mute)}
+.bar{padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:8px}
+button,.btn{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:6px 12px;border-radius:7px;cursor:pointer}
+button:hover{border-color:var(--acc)}
+button:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.tabs button{border:0;background:transparent}
+.tabs button.on{background:var(--card);font-weight:600;box-shadow:0 0 0 1px var(--line)}
+.primary{background:var(--acc);color:#fff;border-color:var(--acc)}
+.primary:hover{background:var(--acc2)}
+.primary[hidden]{display:none}
+.panes{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:800px){.panes{grid-template-columns:1fr}}
+.pane{display:flex;flex-direction:column;min-height:420px}
+.ph{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.ph strong{font-size:14px}
+textarea{flex:1;width:100%;border:0;background:transparent;color:var(--ink);padding:14px;resize:none;font-size:17px;line-height:1.7;min-height:300px}
+.deva{font-family:'Noto Sans Devanagari','Mangal','Nirmala UI',sans-serif}
+.kruti{font-family:'KrutiDev010','Kruti Dev 010',sans-serif;font-size:21px}
+.latin{font-family:system-ui,sans-serif;font-size:15px}
+.pf{padding:8px 14px;border-top:1px solid var(--line);color:var(--mute);font-size:12px;display:flex;justify-content:space-between}
+.note{margin:0 14px 12px;padding:8px 10px;border-radius:8px;font-size:12px;border:1px solid var(--line);color:var(--mute)}
+#toast{position:fixed;top:16px;right:16px;background:#14212b;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;opacity:0;transform:translateY(-10px);transition:.25s;pointer-events:none;z-index:9;max-width:340px}
+#toast.show{opacity:1;transform:none}#toast.err{background:var(--warn)}
+label.sw{font-size:13px;color:var(--mute);display:inline-flex;gap:6px;align-items:center}
+</style>
 </head>
+<body>
+<div id="toast"></div>
+<header>
+  <h1>अक्षर सेतु</h1>
+  <p>Mangal (Unicode) ⇄ Kruti Dev 010, with Word (.docx) layout preserved</p>
+</header>
 
-<body class="h-full flex flex-col font-sans text-slate-800 antialiased selection:bg-orange-100 selection:text-orange-900">
-
-  <!-- Toast Notification Container -->
-  <div id="toast" class="fixed top-5 right-5 z-50 transform transition-all duration-300 translate-y-[-100%] opacity-0 pointer-events-none flex items-center gap-3 bg-slate-900 text-white px-5 py-3 rounded-xl shadow-2xl border border-slate-700 text-sm font-medium">
-    <i id="toast-icon" class="fa-solid fa-circle-check text-emerald-400"></i>
-    <span id="toast-message">Copied to clipboard!</span>
-  </div>
-
-  <!-- Header -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 via-orange-600 to-rose-600 flex items-center justify-center text-white shadow-md shadow-orange-500/20 font-bold text-lg">
-          <span class="font-mangal">क</span>
-        </div>
-        <div>
-          <h1 class="text-lg sm:text-xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-            अक्षर सेतु <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800 border border-orange-200">v3.0</span>
-          </h1>
-          <p class="text-xs text-slate-500">Mangal ⇄ Kruti Dev 010 (Real Hindi Font Rendering) & Transliteration</p>
-        </div>
-      </div>
-
-      <!-- Quick Nav / Actions -->
-      <div class="flex items-center gap-2.5">
-        <label for="font-upload" class="cursor-pointer inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-300" title="Upload local Kruti Dev TTF file if your system blocks CDN fonts">
-          <i class="fa-solid fa-upload text-orange-600"></i>
-          <span>Load .TTF Font</span>
-          <input type="file" id="font-upload" accept=".ttf,.woff,.otf" class="hidden">
-        </label>
-        <button id="btn-docx-shortcut" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200">
-          <i class="fa-solid fa-file-word text-blue-600"></i>
-          <span>Word (.docx) Upload</span>
-        </button>
-        <button id="btn-cheat-sheet" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
-          <i class="fa-solid fa-circle-info text-slate-500"></i>
-          <span>Guide</span>
-        </button>
-        <button id="btn-load-sample" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg transition-colors">
-          <i class="fa-solid fa-wand-magic-sparkles"></i>
-          <span>Sample</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Main Conversion Container -->
-  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col gap-5">
-
-    <!-- Word (.docx) & File Drag-and-Drop Zone -->
-    <div id="file-drop-zone" class="relative group border-2 border-dashed border-slate-300 hover:border-orange-500 bg-white hover:bg-orange-50/30 rounded-2xl p-5 transition-all cursor-pointer shadow-xs">
-      <input type="file" id="doc-file-input" accept=".docx,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-xl shrink-0 shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
-            <i class="fa-solid fa-file-word"></i>
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="text-sm font-bold text-slate-900 group-hover:text-orange-600 transition-colors">Attach / Convert Entire Word File (.docx) or .txt</h3>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">100% Alignment & Layout Preserved</span>
-            </div>
-            <p class="text-xs text-slate-500 mt-0.5">Direct XML package manipulation: keeps tables, headings, justifications, fonts, margins, and text-runs completely undisturbed.</p>
-          </div>
-        </div>
-
-        <div class="flex items-center gap-2 shrink-0">
-          <span id="attached-file-badge" class="hidden text-xs font-medium px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
-            <i class="fa-solid fa-check"></i>
-            <span id="attached-file-name">filename.docx</span>
-          </span>
-          <button id="btn-download-attached-docx" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors z-20">
-            <i class="fa-solid fa-file-arrow-down"></i>
-            <span>Download Converted .docx</span>
-          </button>
-          <div class="px-3 py-1.5 rounded-lg bg-slate-100 group-hover:bg-orange-100 group-hover:text-orange-700 text-xs font-semibold text-slate-700 border border-slate-200 flex items-center gap-1.5">
-            <i class="fa-solid fa-arrow-up-from-bracket"></i>
-            <span>Browse Document</span>
-          </div>
-        </div>
-      </div>
-      <!-- Processing Loader -->
-      <div id="file-processing-indicator" class="hidden mt-3 pt-3 border-t border-slate-200 flex items-center gap-2 text-xs text-orange-600 font-medium">
-        <i class="fa-solid fa-spinner fa-spin"></i>
-        <span>Parsing Word document XML structure and converting text runs...</span>
-      </div>
-    </div>
-    
-    <!-- Mode Selector Tabs & Global Controls Bar -->
-    <div class="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
-      <!-- Mode Tabs -->
-      <div class="flex bg-slate-100 p-1 rounded-xl text-xs sm:text-sm font-medium w-full sm:w-auto">
-        <button id="tab-mangal-kruti" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs transition-all font-semibold">
-          <i class="fa-solid fa-arrows-rotate text-orange-600"></i>
-          <span>Mangal ⇄ Kruti Dev</span>
-        </button>
-        <button id="tab-roman-kruti" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
-          <i class="fa-solid fa-keyboard text-blue-600"></i>
-          <span>Roman Hinglish ➔ Kruti / Mangal</span>
-        </button>
-      </div>
-
-      <!-- Controls -->
-      <div class="flex items-center flex-wrap gap-3 w-full sm:w-auto justify-end">
-        <!-- Live Instant Convert Toggle -->
-        <label class="inline-flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-slate-600">
-          <span>Real-time conversion:</span>
-          <input type="checkbox" id="realtime-toggle" checked class="sr-only peer">
-          <div class="w-9 h-5 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600 relative"></div>
-        </label>
-
-        <!-- Swap Direction Button -->
-        <button id="btn-swap-dir" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200 active:scale-95">
-          <i class="fa-solid fa-repeat"></i>
-          <span id="swap-dir-label">Swap Direction</span>
-        </button>
-
-        <!-- Explicit Convert Button -->
-        <button id="btn-manual-convert" class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 rounded-lg shadow-xs transition-all active:scale-95">
-          <i class="fa-solid fa-bolt"></i>
-          <span>Convert Now</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- Dual Pane Text Areas -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 flex-1 min-h-[460px]">
-      
-      <!-- Input Panel -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col overflow-hidden focus-within:ring-2 focus-within:ring-orange-500/20 focus-within:border-orange-500 transition-all">
-        <!-- Panel Header -->
-        <div class="px-4 py-3 bg-slate-50/75 border-b border-slate-200 flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-            <span id="input-title" class="font-bold text-sm text-slate-800">Mangal (Unicode) Input</span>
-            <span id="input-badge" class="text-[11px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium">Standard Hindi</span>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button id="btn-paste" title="Paste from clipboard" class="p-1.5 text-slate-500 hover:text-slate-800 rounded-md hover:bg-slate-200 transition-colors text-xs">
-              <i class="fa-regular fa-paste"></i>
-            </button>
-            <button id="btn-clear" title="Clear text" class="p-1.5 text-slate-500 hover:text-rose-600 rounded-md hover:bg-slate-200 transition-colors text-xs">
-              <i class="fa-regular fa-trash-can"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Input Textarea -->
-        <div class="relative flex-1 p-3 flex flex-col">
-          <textarea id="input-text" placeholder="यहाँ मंगल यूनिकोड टेक्स्ट लिखें या पेस्ट करें..." class="w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-mangal text-base leading-relaxed placeholder:text-slate-400 custom-scrollbar"></textarea>
-        </div>
-
-        <!-- Panel Footer -->
-        <div class="px-4 py-2.5 bg-slate-50/75 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-          <div class="flex items-center gap-4">
-            <span>Chars: <strong id="input-chars" class="text-slate-700">0</strong></span>
-            <span>Words: <strong id="input-words" class="text-slate-700">0</strong></span>
-          </div>
-          <span class="text-[11px] text-slate-400" id="input-hint">Type or paste Hindi Unicode text</span>
-        </div>
-      </div>
-
-      <!-- Output Panel -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs flex flex-col overflow-hidden focus-within:ring-2 focus-within:ring-orange-500/20 focus-within:border-orange-500 transition-all">
-        <!-- Panel Header -->
-        <div class="px-4 py-3 bg-slate-50/75 border-b border-slate-200 flex items-center justify-between flex-wrap gap-2">
-          <div class="flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
-            <span id="output-title" class="font-bold text-sm text-slate-800">Kruti Dev 010 Output</span>
-            <span id="output-badge" class="text-[11px] px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 font-medium">Remington Font</span>
-          </div>
-
-          <!-- Output View Mode (Real Hindi Visual vs Raw ASCII) -->
-        <div class="flex items-center gap-2">
-          <div id="kruti-preview-toggle-wrapper" class="flex items-center bg-slate-200/80 p-0.5 rounded-lg text-xs font-medium">
-            <button id="view-font-btn" class="px-2.5 py-1 rounded-md bg-white text-orange-700 shadow-xs font-bold flex items-center gap-1" title="Visually renders real Hindi characters using the Kruti Dev font engine">
-              <i class="fa-solid fa-eye text-xs"></i>
-              <span>Visual Hindi View</span>
-            </button>
-            <button id="view-raw-btn" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1" title="Show raw ASCII text (e.g. Hkkjr) required for pasting into MS Word / PageMaker">
-              <i class="fa-solid fa-code text-xs"></i>
-              <span>Raw ASCII</span>
-            </button>
-          </div>
-          
-          <button id="btn-copy" class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors">
-            <i class="fa-regular fa-copy"></i>
-            <span>Copy</span>
-          </button>
-          
-          <!-- Download Word (.docx) & Text options -->
-          <div class="flex items-center gap-1">
-            <button id="btn-download-docx" class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors" title="Export converted document (.docx) with preserved formatting and alignments">
-              <i class="fa-solid fa-file-word"></i>
-              <span>Download .docx</span>
-            </button>
-            <button id="btn-download" title="Download text as .txt" class="p-1.5 text-slate-500 hover:text-slate-800 rounded-md hover:bg-slate-200 transition-colors text-xs">
-              <i class="fa-solid fa-download"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Output Textarea and Visual Overlay -->
-        <div class="relative flex-1 p-3 flex flex-col">
-          <!-- Textarea configured by default to font-kruti-render so it shows actual Hindi letters -->
-          <textarea id="output-text" readonly placeholder="परिवर्तित कृतिदेव टेक्स्ट यहाँ दिखाई देगा..." class="w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-kruti-render text-lg leading-relaxed placeholder:text-slate-400 custom-scrollbar"></textarea>
-          
-          <!-- Visual Helper note for Kruti Dev -->
-          <div id="kruti-guidance-bar" class="mt-2 text-xs p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/60 text-amber-900 flex items-start gap-2">
-            <i class="fa-solid fa-circle-check text-emerald-600 mt-0.5"></i>
-            <p class="leading-normal">
-              <strong>Live Devanagari Rendering Active:</strong> Output is being rendered using the Kruti Dev font family directly on your screen. When you click <strong>"Copy"</strong>, it copies the exact keystrokes so when you paste into <strong>MS Word / InDesign / Photoshop</strong> with font set to <strong>Kruti Dev 010</strong>, your Hindi layout is 100% preserved.
-            </p>
-          </div>
-        </div>
-
-        <!-- Panel Footer -->
-        <div class="px-4 py-2.5 bg-slate-50/75 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-          <div class="flex items-center gap-4">
-            <span>Chars: <strong id="output-chars" class="text-slate-700">0</strong></span>
-            <span>Words: <strong id="output-words" class="text-slate-700">0</strong></span>
-          </div>
-          <span class="text-[11px] text-slate-400">Ready for desktop publishing & typing tests</span>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- Features & Info Strip -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-1">
-      <div class="bg-white p-4 rounded-xl border border-slate-200 flex items-start gap-3">
-        <div class="w-9 h-9 rounded-lg bg-orange-50 border border-orange-100 flex items-center justify-center text-orange-600 shrink-0">
-          <i class="fa-solid fa-shield-halved"></i>
-        </div>
-        <div>
-          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">100% Client-Side & Private</h4>
-          <p class="text-xs text-slate-500 mt-0.5">All conversions execute in your browser using fast regex parsing. No sensitive text ever leaves your device.</p>
-        </div>
-      </div>
-
-      <div class="bg-white p-4 rounded-xl border border-slate-200 flex items-start gap-3">
-        <div class="w-9 h-9 rounded-lg bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shrink-0">
-          <i class="fa-solid fa-layer-group"></i>
-        </div>
-        <div>
-          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">Accurate Complex Conjuncts</h4>
-          <p class="text-xs text-slate-500 mt-0.5">Intelligent rules for chhoti-ee matra displacement ('f'), reph ('Z'), ksh, tra, gya, and halant cluster reordering.</p>
-        </div>
-      </div>
-
-      <div class="bg-white p-4 rounded-xl border border-slate-200 flex items-start gap-3">
-        <div class="w-9 h-9 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 shrink-0">
-          <i class="fa-solid fa-print"></i>
-        </div>
-        <div>
-          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">Govt Exam & DTP Compatible</h4>
-          <p class="text-xs text-slate-500 mt-0.5">Standard Kruti Dev 010 output ideal for CPCT, Allahabad High Court, SSC, CorelDRAW, PageMaker & Word.</p>
-        </div>
-      </div>
-    </div>
-
-  </main>
-
-  <!-- Modal: Font Guide & Instructions -->
-  <div id="modal-guide" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 hidden">
-    <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden shadow-2xl flex flex-col border border-slate-200">
-      <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-circle-question text-orange-600"></i>
-          <h3 class="font-bold text-slate-900">Hindi Font Converter & Typing Guide</h3>
-        </div>
-        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600 text-lg p-1">
-          <i class="fa-solid fa-xmark"></i>
-        </button>
-      </div>
-      
-      <div class="p-6 overflow-y-auto space-y-5 text-sm text-slate-600 custom-scrollbar">
-        <div>
-          <h4 class="font-bold text-slate-800 text-base mb-1">How Kruti Dev Visual Rendering Works</h4>
-          <p class="leading-relaxed">
-            Kruti Dev 010 is an 8-bit glyph font. In standard fonts it looks like English ASCII letters (for example, <code class="bg-slate-100 px-1 py-0.5 rounded text-slate-800 font-mono">Hkkjr</code>). By applying the Kruti Dev font-face to the browser canvas, the app converts those ASCII characters into the authentic Devanagari shapes (भारत).
-          </p>
-        </div>
-
-        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl text-amber-900">
-          <h5 class="font-bold text-sm mb-1 flex items-center gap-1.5">
-            <i class="fa-solid fa-circle-exclamation text-amber-600"></i> How to use in Microsoft Word / PageMaker / InDesign:
-          </h5>
-          <ol class="list-decimal list-inside space-y-1 text-xs text-amber-800 pl-1 mt-2">
-            <li>Click <strong>Copy</strong> in this tool.</li>
-            <li>Paste into your Word document or design tool.</li>
-            <li>Highlight the pasted text.</li>
-            <li>Select <strong>Kruti Dev 010</strong> from your software's font dropdown.</li>
-            <li>All letters, conjuncts, and matras will render in Devanagari.</li>
-          </ol>
-        </div>
-
-        <div>
-          <h4 class="font-bold text-slate-800 text-base mb-2">Phonetic Hinglish Transliteration Quick Guide</h4>
-          <p class="mb-2 text-xs">When using the <strong>Roman Hinglish</strong> mode, type phonetically in English:</p>
-          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
-            <div class="p-2 bg-slate-50 border border-slate-200 rounded-lg"><code>namaste</code> ➔ नमस्ते</div>
-            <div class="p-2 bg-slate-50 border border-slate-200 rounded-lg"><code>bharat</code> ➔ भारत</div>
-            <div class="p-2 bg-slate-50 border border-slate-200 rounded-lg"><code>hindustan</code> ➔ हिंदुस्तान</div>
-            <div class="p-2 bg-slate-50 border border-slate-200 rounded-lg"><code>shanti</code> ➔ शांति</div>
-            <div class="p-2 bg-slate-50 border border-slate-200 rounded-lg"><code>vidyalaya</code> ➔ विद्यालय</div>
-            <div class="p-2 bg-slate-50 border border-slate-200 rounded-lg"><code>kripya</code> ➔ कृपया</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-end">
-        <button id="btn-close-modal-footer" class="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors">
-          Got it
-        </button>
-      </div>
+<main>
+  <div class="card drop" id="drop">
+    <input type="file" id="docInput" accept=".docx,.txt">
+    <div><b>Convert a Word file (.docx) or .txt</b>
+      <small>Tables, alignment and margins are kept; only the text and its font are changed.</small></div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <span id="fileName" style="font-size:13px;color:var(--acc)"></span>
+      <button class="primary" id="btnDocxTop" hidden>Download converted .docx</button>
+      <span class="btn">Choose file</span>
     </div>
   </div>
 
-  <!-- Footer -->
-  <footer class="bg-white border-t border-slate-200 py-3 text-center text-xs text-slate-500">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <p>Hindi Font Converter & Transliteration Engine &bull; Free & Open Web Utility</p>
-      <p>Optimized for Gov Exams, Printing Presses & Hindi Typing</p>
+  <div class="card bar">
+    <div class="tabs" id="tabs">
+      <button data-mode="m2k" class="on">Mangal → Kruti Dev</button>
+      <button data-mode="k2m">Kruti Dev → Mangal</button>
+      <button data-mode="r2k">Roman Hinglish → Kruti Dev</button>
     </div>
-  </footer>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <label class="sw"><input type="checkbox" id="realtime" checked> Real-time</label>
+      <label class="sw" title="Kruti → Mangal only. Converts every run, even if its font is not Kruti Dev."><input type="checkbox" id="allRuns"> Convert all runs in .docx</label>
+      <label class="btn" for="fontUpload" title="Load your own Kruti Dev .ttf if the web font does not load">Load .ttf font</label>
+      <input type="file" id="fontUpload" accept=".ttf,.otf,.woff" hidden>
+      <button id="btnSample">Sample</button>
+      <button class="primary" id="btnConvert">Convert now</button>
+    </div>
+  </div>
 
-  <!-- Logic & Mapping Engine -->
-  <script>
-    /**
-     * MANGAL (UNICODE) <-> KRUTI DEV 010 ENGINE (PRECISION DTP & EXAM EDITION)
-     * Handles all edge cases: Chhoti-ee displacement, Reph ordering,
-     * Nuktas, Quotation/Parenthesis Alt codes, Subscript R, and Ligatures.
-     */
-    const Converter = (() => {
+  <div class="panes">
+    <div class="card pane">
+      <div class="ph"><strong id="inTitle">Mangal (Unicode) input</strong>
+        <span><button id="btnPaste">Paste</button> <button id="btnClear">Clear</button></span></div>
+      <textarea id="input" class="deva" spellcheck="false" placeholder="Type or paste text here…"></textarea>
+      <div class="pf"><span>Chars: <b id="inC">0</b> · Words: <b id="inW">0</b></span><span id="inHint"></span></div>
+    </div>
+    <div class="card pane">
+      <div class="ph"><strong id="outTitle">Kruti Dev 010 output</strong>
+        <span style="display:flex;gap:6px;flex-wrap:wrap">
+          <span id="viewWrap"><button id="vVisual" class="on">Visual Hindi</button> <button id="vRaw">Raw ASCII</button></span>
+          <button class="primary" id="btnCopy">Copy</button>
+          <button id="btnTxt">.txt</button>
+          <button id="btnDocx">.docx</button>
+        </span></div>
+      <textarea id="output" class="kruti" readonly spellcheck="false" placeholder="Converted text appears here…"></textarea>
+      <div class="note" id="krutiNote">Copy gives the raw keystrokes. Paste into Word or a DTP tool and set the font to <b>Kruti Dev 010</b>.</div>
+      <div class="pf"><span>Chars: <b id="outC">0</b> · Words: <b id="outW">0</b></span><span id="outHint"></span></div>
+    </div>
+  </div>
+</main>
 
-      // Unicode -> Kruti Dev direct mappings
-      const UNICODE_TO_KRUTI_TABLE = [
-        // Complex ligatures & conjuncts
-        ['\u0915\u094D\u0937', 'f{k'],    // क्ष
-        ['\u0924\u094D\u0930', '='],      // त्र
-        ['\u091C\u094D\u091E', 'K'],      // ज्ञ
-        ['\u0936\u094D\u0930', 'J'],      // श्र
-        ['\u0926\u094D\u0927', 'I'],      // द्ध
-        ['\u0926\u094D\u0935', 'n~'],     // द्व
-        ['\u0926\u094D\u0926', 'í'],      // द्द
-        ['\u091F\u094D\u091F', 'ê'],      // ट्ट
-        ['\u0920\u094D\u0920', 'ë'],      // ठ्ठ
-        ['\u0926\u094D\u092F', 'n~;'],    // द्य
-        ['\u0939\u094D\u092E', 'á'],      // ह्म
-        ['\u0939\u094D\u092F', 'â'],      // ह्य
-        ['\u0939\u094D\u0935', 'à'],      // ह्व
-        ['\u0939\u0943', 'â'],            // हृ
-        ['\u0915\u094D\u0930', 'Ø'],      // क्र
-        ['\u092B\u094D\u0930', 'Ý'],      // फ्र
-        ['\u092A\u094D\u0930', 'iz'],     // प्र
-        ['\u0917\u094D\u0930', 'xz'],     // ग्र
-        ['\u092D\u094D\u0930', 'Hkz'],    // भ्र
-        ['\u092E\u094D\u0930', 'ez'],     // म्र
-        ['\u0924\u094D\u0924', 'Ù'],      // त्त
-        ['\u0915\u094D\u0915', 'ô'],      // क्क
-        ['\u0921\u094D\u0921', 'ì'],      // ड्ड
-        ['\u0926\u094D\u0917', 'íx'],     // द्ग
-        ['\u091F\u094D\u0930', 'Vª'],     // ट्र
-        ['\u0921\u094D\u0930', 'Mª'],     // ड्र
-        ['\u0922\u094D\u0930', '<ª'],     // ढ्र
+<script>
+/* ================= CONVERSION ENGINE ================= */
+const Conv = (() => {
+  const H = '\u094D', NK = '\u093C';
+  const NUK_PRE = {'क':'\u0958','ख':'\u0959','ग':'\u095A','ज':'\u095B','ड':'\u095C','ढ':'\u095D','फ':'\u095E','य':'\u095F'};
+  const NUK_DEC = {}; for (const [b,p] of Object.entries(NUK_PRE)) NUK_DEC[p] = b + NK;
 
-        // Nukta precomposed characters
-        ['\u0958', 'd+'], // क़
-        ['\u0959', '[k+'], // ख़
-        ['\u095A', 'x+'], // ग़
-        ['\u095B', 't+'], // ज़
-        ['\u095C', 'M+'], // ड़
-        ['\u095D', '<+'], // ढ़
-        ['\u095E', 'Q+'], // फ़
+  /* ---------- Unicode -> Kruti Dev ---------- */
+  const FULL = {क:'d',ख:'[k',ग:'x',घ:'?k',ङ:'³',च:'p',छ:'N',ज:'t',झ:'>',ञ:'¥',ट:'V',ठ:'B',ड:'M',ढ:'<',ण:'.k',त:'r',थ:'Fk',द:'n',ध:'/k',न:'u',प:'i',फ:'Q',ब:'c',भ:'Hk',म:'e',य:';',र:'j',ल:'y',ळ:'G',व:'o',श:"'k",ष:'"k',स:'l',ह:'g'};
+  const HALF = {क:'D',ख:'[',ग:'X',घ:'?',च:'P',ज:'T',ण:'.',त:'R',थ:'F',ध:'/',न:'U',प:'I',फ:'¶',ब:'C',भ:'H',म:'E',य:'¸',ल:'Y',व:'O',श:"'",ष:'"',स:'L'};
+  const NUK = {'क़':'d+','ख़':'[k+','ग़':'x+','ज़':'t+','ड़':'M+','ढ़':'<+','फ़':'Q+','य़':';+'};
+  const PAIR = {'क्ष':'{','त्र':'=','ज्ञ':'K','श्र':'J','क्र':'Ø','फ्र':'Ý','द्य':'|','द्व':'}','द्ध':')','ट्ट':'ê','ठ्ठ':'ë','ड्ड':'ì','द्द':'í','त्त':'Ù','क्क':'ô','ह्म':'á','ह्य':'â','ह्व':'à'};
+  const MT = {'\u093E':'k','\u0940':'h','\u0941':'q','\u0942':'w','\u0943':'`','\u0944':'`','\u0945':'W','\u0947':'s','\u0948':'S','\u094B':'ks','\u094C':'kS','\u0949':'kW'};
+  const TAIL = {'\u0901':'¡','\u0902':'a','\u0903':'%'};
+  const IND = {'अ':'v','आ':'vk','इ':'b','ई':'bZ','उ':'m','ऊ':'Å','ऋ':'_','ए':',','ऐ':',s','ओ':'vks','औ':'vkS','ऑ':'vkW','ऍ':',W','।':'A','॥':'AA','ं':'a','ँ':'¡','ः':'%','ॅ':'W','ॉ':'kW','ा':'k','ि':'f','ी':'h','ु':'q','ू':'w','ृ':'`','े':'s','ै':'S','ो':'ks','ौ':'kS','्':'~','़':'+','\u200D':'','\u200C':''};
+  const PUNCT = {'(':'¼',')':'½',',':']','.':'-','-':'&'};
+  const CN = '[\\u0915-\\u0939]\\u093C?';
+  const SYL = new RegExp(`(\\u0930\\u094D)?((?:${CN}\\u094D)*)(${CN})([\\u093E-\\u094C]*)([\\u0901\\u0902\\u0903]?)`, 'g');
 
-        // Independent Vowels
-        ['\u0905', 'v'],     // अ
-        ['\u0906', 'vk'],    // आ
-        ['\u0907', 'b'],     // इ
-        ['\u0908', 'bZ'],    // ई
-        ['\u0909', 'm'],     // उ
-        ['\u090A', 'Å'],     // ऊ
-        ['\u090B', '_'],     // ऋ
-        ['\u090F', ','],     // ए
-        ['\u0910', 's'],     // ऐ
-        ['\u0913', 'vks'],   // ओ
-        ['\u0914', 'vkS'],   // औ
-        ['\u0902', 'a'],     // Anusvara
-        ['\u0901', '¡'],     // Chandrabindu
-        ['\u0903', '%'],     // Visarga
-        ['\u0945', 'W'],     // Chandra E (ॅ)
-        ['\u0949', 'kW'],    // Chandra O (ॉ)
-        ['\u0911', 'vkW'],   // Chandra O vowel (ऑ)
+  const fullOf = c => c.length > 1 ? (NUK[c] || FULL[c[0]] + '+') : FULL[c];
+  const halfOf = c => c.length > 1 ? (NUK[c] || FULL[c[0]] + '+') + '~' : (HALF[c] || FULL[c] + '~');
 
-        // Matras
-        ['\u093E', 'k'],     // ा
-        ['\u0940', 'h'],     // ी
-        ['\u0941', 'q'],     // ु
-        ['\u0942', 'w'],     // ू
-        ['\u0943', '`'],     // ृ
-        ['\u0947', 's'],     // े
-        ['\u0948', 'S'],     // ै
-        ['\u094B', 'ks'],    // ो
-        ['\u094C', 'kS'],    // ौ
-        ['\u094D', '~'],     // ् (Halant)
-
-        // Half Consonants
-        ['\u0915\u094D', 'D'],   // क्
-        ['\u0916\u094D', '[k~'], // ख्
-        ['\u0917\u094D', 'X'],   // ग्
-        ['\u0918\u094D', '?k~'], // घ्
-        ['\u091A\u094D', 'P'],   // च्
-        ['\u091C\u094D', 'T'],   // ज्
-        ['\u091D\u094D', 'H~'],  // झ्
-        ['\u0923\u094D', '.k~'], // ण्
-        ['\u0924\u094D', 'R'],   // त्
-        ['\u0925\u094D', 'F'],   // थ्
-        ['\u0927\u094D', 'è'],   // ध्
-        ['\u0928\u094D', 'U'],   // न्
-        ['\u092A\u094D', 'I'],   // प्
-        ['\u092B\u094D', '¶'],   // फ्
-        ['\u092C\u094D', 'C'],   // ब्
-        ['\u092D\u094D', 'H'],   // भ्
-        ['\u092E\u094D', 'E'],   // म्
-        ['\u092F\u094D', ';~'],  // य्
-        ['\u0932\u094D', 'Y'],   // ल्
-        ['\u0935\u094D', 'O'],   // व्
-        ['\u0936\u094D', '\''],  // श्
-        ['\u0937\u094D', '\"'],  // ष्
-        ['\u0938\u094D', 'L'],   // स्
-
-        // Full Consonants
-        ['\u0915', 'd'],  // क
-        ['\u0916', '[k'], // ख
-        ['\u0917', 'x'],  // ग
-        ['\u0918', '?k'], // घ
-        ['\u0919', '³'],  // ङ
-        ['\u091A', 'p'],  // च
-        ['\u091B', 'N'],  // छ
-        ['\u091C', 't'],  // ज
-        ['\u091D', 'H'],  // झ
-        ['\u091E', '¥'],  // ञ
-        ['\u091F', 'V'],  // ट
-        ['\u0920', 'B'],  // ठ
-        ['\u0921', 'M'],  // ड
-        ['\u0922', '<'],  // ढ
-        ['\u0923', '.k'], // ण
-        ['\u0924', 'r'],  // त
-        ['\u0925', 'Fk'], // थ
-        ['\u0926', 'n'],  // द
-        ['\u0927', 'èk'], // ध
-        ['\u0928', 'u'],  // न
-        ['\u092A', 'i'],  // प
-        ['\u092B', 'Q'],  // फ
-        ['\u092C', 'c'],  // ब
-        ['\u092D', 'Hk'], // भ
-        ['\u092E', 'e'],  // म
-        ['\u092F', ';'],  // य
-        ['\u0930', 'j'],  // र
-        ['\u0932', 'y'],  // ल
-        ['\u0933', 'G'],  // ळ
-        ['\u0935', 'o'],  // व
-        ['\u0936', '\'k'],// श
-        ['\u0937', '\"k'],// ष
-        ['\u0938', 'l'],  // स
-        ['\u0939', 'g'],  // ह
-
-        // Punctuation & Danda
-        ['\u0964', 'A'],  // । (Purna Viram)
-        ['\u0965', 'AA'], // ॥
-        ['(', '¼'],
-        [')', '½']
-      ];
-
-      function unicodeToKruti(text) {
-        if (!text) return '';
-        let str = text.normalize('NFC');
-
-        // 1. Chhoti-ee matra displacement: Place 'f' before the consonant/cluster
-        const chhotiEeRegex = /((?:[\u0915-\u0939]\u094D)*[\u0915-\u0939])\u093F/g;
-        str = str.replace(chhotiEeRegex, 'f$1');
-
-        // 2. Reph (र्) displacement: Shift to 'Z' after base consonant and matras
-        const rephRegex = /\u0930\u094D((?:[\u0915-\u0939]\u094D)*[\u0915-\u0939])([\u093E\u0940\u0941\u0942\u0947\u0948\u094B\u094C\u0902\u0901]?)/g;
-        str = str.replace(rephRegex, '$1$2Z');
-
-        // 3. Sequential replacement
-        for (let i = 0; i < UNICODE_TO_KRUTI_TABLE.length; i++) {
-          const [uni, kruti] = UNICODE_TO_KRUTI_TABLE[i];
-          if (str.indexOf(uni) !== -1) {
-            str = str.split(uni).join(kruti);
-          }
-        }
-
-        return str;
+  function syllable(m, reph, halves, base, matras, tail) {
+    const cs = [...(halves ? halves.slice(0, -1).split(H) : []), base];
+    let out = '', i = 0;
+    while (i < cs.length) {
+      const c = cs[i], n = cs[i + 1], last = i === cs.length - 1;
+      if (n && c !== 'र' && PAIR[c + H + n] !== undefined) {
+        const g = PAIR[c + H + n], end = i + 1 === cs.length - 1;
+        out += g === '{' ? (end ? '{k' : '{') : (end ? g : g + '~');
+        i += 2; continue;
       }
-
-      function krutiToUnicode(text) {
-        if (!text) return '';
-        let str = text;
-
-        // --- STEP 1: Pre-process Punctuation, Alt-codes, and Symbols ---
-        // Degree symbol used for dot in numbering schemes (e.g. 1º1, 1º1º1 -> 1.1, 1.1.1)
-        str = str.replace(/[\u00BA\u00B0]/g, '.');
-        
-        // Fix colon and rupee symbol bugs (e.g. 1रू परिचय -> 1: परिचय)
-        str = str.replace(/([0-9])\s*रू\s*/g, '$1: ');
-        str = str.replace(/रू/g, 'रु');
-
-        // Alt-code Parentheses and quotation marks
-        str = str.replace(/¼/g, '(');
-        str = str.replace(/½/g, ')');
-        str = str.replace(/¿/g, '?');
-        str = str.replace(/À/g, '!');
-        str = str.replace(/—/g, ' - ');
-        str = str.replace(/–/g, ' - ');
-
-        // Fix hyphen-ligature corruptions (e.g. अध्यायदृप्रथम -> अध्याय - प्रथम)
-        str = str.replace(/([a-zA-Z\u0900-\u097F])दृ([a-zA-Z\u0900-\u097F])/g, '$1 - $2');
-
-        // Precomposed Alt-code special characters in Kruti Dev
-        const PRE_REPLACEMENTS = [
-          ['f{k', 'क्ष्ि'],
-          ['{k~', 'क्ष्'],
-          ['{k', 'क्ष'],
-          ['Ý', 'फ्र'],
-          ['Ø', 'क्र'],
-          ['iz', 'प्र'],
-          ['xz', 'ग्र'],
-          ['Hkz', 'भ्र'],
-          ['ez', 'म्र'],
-          ['Vª', 'ट्र'],
-          ['Mª', 'ड्र'],
-          ['<ª', 'ढ्र'],
-          ['K', 'ज्ञ'],
-          ['=', 'त्र'],
-          ['J', 'श्र'],
-          ['I', 'द्ध'],
-          ['ê', 'ट्ट'],
-          ['ë', 'ठ्ठ'],
-          ['íx', 'द्ग'],
-          ['í', 'द्द'],
-          ['ì', 'ड्ड'],
-          ['Ù', 'त्त'],
-          ['á', 'ह्म'],
-          ['â', 'ह्य'],
-          ['à', 'ह्व'],
-          ['ô', 'क्क'],
-          ['n~;', 'द्य'],
-          ['n~', 'द्व']
-        ];
-
-        for (let i = 0; i < PRE_REPLACEMENTS.length; i++) {
-          const [k, u] = PRE_REPLACEMENTS[i];
-          if (str.indexOf(k) !== -1) {
-            str = str.split(k).join(u);
-          }
-        }
-
-        // --- STEP 2: Handle 'Z' (Reph / र्) Before Consonant Conversion ---
-        // Shift Reph 'Z' to the beginning of the cluster as 'र्'
-        const rephPattern = /([a-zA-Z~\[\]\{\}\<\>\?\,\.\;\:\"\=\_\\\+\-\*\/#%&]+?)Z/g;
-        str = str.replace(rephPattern, 'र्$1');
-
-        // --- STEP 3: Handle 'f' (Chhoti-ee Matra) Inversion ---
-        // 'f' precedes the letter or cluster in Kruti Dev (e.g. f'k -> शि, f'k{kk -> शिक्षा)
-        const chhotiEePattern = /f([a-zA-Z~\[\]\{\}\<\>\?\,\.\;\:\"\=\_\\\+\-\*\/#%&]+?)/g;
-        str = str.replace(chhotiEePattern, '$1\u093F');
-
-        // --- STEP 4: Standard Character & Matra Replacements ---
-        // Note: Order matters. Multi-character patterns (e.g. 'k -> श) MUST precede single characters (' -> श्)
-        const GLYPH_MAP = [
-          // Vowels (Complex)
-          ['vkS', 'औ'],
-          ['vks', 'ओ'],
-          ['vkW', 'ऑ'],
-          ['vk', 'आ'],
-          ['bZ', 'ई'],
-          ['v', 'अ'],
-          ['b', 'इ'],
-          ['m', 'उ'],
-          ['Å', 'ऊ'],
-          ['_', 'ऋ'],
-          [',', 'ए'],
-          ['s', 'ऐ'],
-
-          // Matras
-          ['kW', 'ॉ'],
-          ['W', 'ॅ'],
-          ['kS', 'ौ'],
-          ['ks', 'ो'],
-          ['k', 'ा'],
-          ['h', 'ी'],
-          ['q', 'ु'],
-          ['w', 'ू'],
-          ['`', 'ृ'],
-          ['S', 'ै'],
-          ['s', 'े'],
-          ['a', 'ं'],
-          ['¡', 'ँ'],
-          ['%', 'ः'],
-          ['~', '्'],
-
-          // Full Consonants with 'k' matra stems
-          ['\'k', 'श'],
-          ['\"k', 'ष'],
-          ['[k', 'ख'],
-          ['?k', 'घ'],
-          ['.k', 'ण'],
-          ['Fk', 'थ'],
-          ['èk', 'ध'],
-          ['Hk', 'भ'],
-
-          // Half-letters without 'k'
-          ['\'', 'श्'],
-          ['\"', 'ष्'],
-          ['D', 'क्'],
-          ['X', 'ग्'],
-          ['P', 'च्'],
-          ['T', 'ज्'],
-          ['R', 'त्'],
-          ['F', 'थ्'],
-          ['è', 'ध्'],
-          ['U', 'न्'],
-          ['I', 'प्'],
-          ['¶', 'फ्'],
-          ['C', 'ब्'],
-          ['H', 'भ्'],
-          ['E', 'म्'],
-          ['Y', 'ल्'],
-          ['O', 'व्'],
-          ['L', 'स्'],
-
-          // Nukta-bearing characters
-          ['M+', 'ड़'],
-          ['<+', 'ढ़'],
-          ['d+', 'क़'],
-          ['[k+', 'ख़'],
-          ['x+', 'ग़'],
-          ['t+', 'ज़'],
-          ['Q+', 'फ़'],
-          ['+', '़'], // standalone nukta dot
-
-          // Remaining Full Consonants
-          ['d', 'क'],
-          ['x', 'ग'],
-          ['³', 'ङ'],
-          ['p', 'च'],
-          ['N', 'छ'],
-          ['t', 'ज'],
-          ['¥', 'ञ'],
-          ['V', 'ट'],
-          ['B', 'ठ'],
-          ['M', 'ड'],
-          ['<', 'ढ'],
-          ['r', 'त'],
-          ['n', 'द'],
-          ['u', 'न'],
-          ['i', 'प'],
-          ['Q', 'फ'],
-          ['c', 'ब'],
-          ['e', 'म'],
-          [';', 'य'],
-          ['j', 'र'],
-          ['y', 'ल'],
-          ['G', 'ळ'],
-          ['o', 'व'],
-          ['l', 'स'],
-          ['g', 'ह'],
-
-          // Danda / Viram
-          ['AA', '॥'],
-          ['A', '।']
-        ];
-
-        for (let i = 0; i < GLYPH_MAP.length; i++) {
-          const [k, u] = GLYPH_MAP[i];
-          if (str.indexOf(k) !== -1) {
-            str = str.split(k).join(u);
-          }
-        }
-
-        // --- STEP 5: Post-Processing & Normalization ---
-        // Clean misplaced halants and chhoti-ee placements after clusters
-        str = str.replace(/्\u093F/g, '\u093F्');
-        str = str.replace(/([क-ह])्([क-ह])\u093F/g, '$1्$2\u093F');
-
-        // Fix isolated nuktas attached with a space: (e.g. 'पढ ़ाई' -> 'पढ़ाई')
-        str = str.replace(/([क-ह])\s+़/g, '$1़');
-        str = str.replace(/ढ़\s*़/g, 'ढ़');
-        str = str.replace(/ड़\s*़/g, 'ड़');
-        str = str.replace(/ढ\s*़/g, 'ढ़');
-        str = str.replace(/ड\s*़/g, 'ड़');
-
-        // Fix floating crescent/moon vowels (e.g. 'ज ॉन' -> 'जॉन')
-        str = str.replace(/([क-ह])\s+ॉ/g, '$1ॉ');
-        str = str.replace(/([क-ह])\s+ॅ/g, '$1ॅ');
-
-        // Canonical Unicode Normalization (NFC joins isolated base+nukta into single code points)
-        return str.normalize('NFC');
-      }
-
-      // Phonetic Roman to Devanagari Unicode
-      function transliterateRomanWord(word) {
-        if (!word) return '';
-        if (!/^[a-zA-Z0-9\.\,\?\!\'\-\_]+$/.test(word)) return word;
-
-        let w = word.toLowerCase();
-        let result = '';
-        let i = 0;
-
-        const isVowel = (c) => 'aeiou'.includes(c);
-
-        const matraMap = {
-          'aa': 'ा', 'a': '', 'i': 'ि', 'ee': 'ी', 'u': 'ु',
-          'oo': 'ू', 'e': 'े', 'ai': 'ै', 'o': 'ो', 'au': 'ौ'
-        };
-
-        const independentVowels = {
-          'aa': 'आ', 'a': 'अ', 'i': 'इ', 'ee': 'ई', 'u': 'उ',
-          'oo': 'ऊ', 'e': 'ए', 'ai': 'ऐ', 'o': 'ओ', 'au': 'औ'
-        };
-
-        const consMap = {
-          'ksh': 'क्ष', 'tra': 'त्र', 'gya': 'ज्ञ', 'shr': 'श्र',
-          'kh': 'ख', 'gh': 'घ', 'chh': 'छ', 'ch': 'च', 'jh': 'झ',
-          'th': 'थ', 'dh': 'ध', 'ph': 'फ', 'bh': 'भ', 'sh': 'श',
-          'k': 'क', 'g': 'ग', 'j': 'ज', 't': 'त', 'd': 'द',
-          'n': 'न', 'p': 'प', 'f': 'फ', 'b': 'ब', 'm': 'म',
-          'y': 'य', 'r': 'र', 'l': 'ल', 'v': 'व', 'w': 'व',
-          's': 'स', 'h': 'ह', 'z': 'ज़', 'q': 'क़'
-        };
-
-        let lastWasConsonant = false;
-
-        while (i < w.length) {
-          let foundCons = null;
-          let matchLen = 0;
-
-          const tri = w.substr(i, 3);
-          const duo = w.substr(i, 2);
-          const single = w.substr(i, 1);
-
-          if (consMap[tri]) {
-            foundCons = consMap[tri];
-            matchLen = 3;
-          } else if (consMap[duo]) {
-            foundCons = consMap[duo];
-            matchLen = 2;
-          } else if (consMap[single]) {
-            foundCons = consMap[single];
-            matchLen = 1;
-          }
-
-          if (foundCons) {
-            if (lastWasConsonant) result += '्';
-            result += foundCons;
-            lastWasConsonant = true;
-            i += matchLen;
-            continue;
-          }
-
-          let foundVowel = null;
-          let vLen = 0;
-          if (duo === 'aa' || duo === 'ee' || duo === 'oo' || duo === 'ai' || duo === 'au') {
-            foundVowel = duo;
-            vLen = 2;
-          } else if (isVowel(single)) {
-            foundVowel = single;
-            vLen = 1;
-          }
-
-          if (foundVowel) {
-            if (lastWasConsonant) {
-              result += matraMap[foundVowel];
-            } else {
-              result += independentVowels[foundVowel];
-            }
-            lastWasConsonant = false;
-            i += vLen;
-            continue;
-          }
-
-          result += single;
-          lastWasConsonant = false;
-          i += 1;
-        }
-
-        return result;
-      }
-
-      function romanToDevanagari(text) {
-        if (!text) return '';
-        return text.split(/(\s+|[.,!?:;"'()])/).map(token => {
-          if (/^\s+$/.test(token) || /^[.,!?:;"'()]$/.test(token)) return token;
-          return transliterateRomanWord(token);
-        }).join('');
-      }
-
-      return {
-        unicodeToKruti,
-        krutiToUnicode,
-        romanToDevanagari
-      };
-    })();
-
-    /**
-     * APP CONTROLLER
-     */
-    document.addEventListener('DOMContentLoaded', () => {
-      const inputText = document.getElementById('input-text');
-      const outputText = document.getElementById('output-text');
-      const inputTitle = document.getElementById('input-title');
-      const outputTitle = document.getElementById('output-title');
-      const inputBadge = document.getElementById('input-badge');
-      const outputBadge = document.getElementById('output-badge');
-      const inputChars = document.getElementById('input-chars');
-      const inputWords = document.getElementById('input-words');
-      const outputChars = document.getElementById('output-chars');
-      const outputWords = document.getElementById('output-words');
-      const inputHint = document.getElementById('input-hint');
-      
-      const tabMangalKruti = document.getElementById('tab-mangal-kruti');
-      const tabRomanKruti = document.getElementById('tab-roman-kruti');
-      const realtimeToggle = document.getElementById('realtime-toggle');
-      const btnSwapDir = document.getElementById('btn-swap-dir');
-      const btnManualConvert = document.getElementById('btn-manual-convert');
-      
-      const viewRawBtn = document.getElementById('view-raw-btn');
-      const viewFontBtn = document.getElementById('view-font-btn');
-      const krutiPreviewToggleWrapper = document.getElementById('kruti-preview-toggle-wrapper');
-      const krutiGuidanceBar = document.getElementById('kruti-guidance-bar');
-
-      const btnCopy = document.getElementById('btn-copy');
-      const btnPaste = document.getElementById('btn-paste');
-      const btnClear = document.getElementById('btn-clear');
-      const btnDownload = document.getElementById('btn-download');
-      const btnDownloadDocx = document.getElementById('btn-download-docx');
-      const btnLoadSample = document.getElementById('btn-load-sample');
-      const fontUpload = document.getElementById('font-upload');
-
-      // Word File Upload Elements
-      const docFileInput = document.getElementById('doc-file-input');
-      const fileDropZone = document.getElementById('file-drop-zone');
-      const attachedFileBadge = document.getElementById('attached-file-badge');
-      const attachedFileName = document.getElementById('attached-file-name');
-      const btnDownloadAttachedDocx = document.getElementById('btn-download-attached-docx');
-      const fileProcessingIndicator = document.getElementById('file-processing-indicator');
-      const btnDocxShortcut = document.getElementById('btn-docx-shortcut');
-
-      // Store in-memory converted DOCX blob & metadata to guarantee alignment retention
-      let originalDocxZip = null;
-      let lastUploadedFileName = 'Document.docx';
-      let convertedDocxBlob = null;
-      
-      const btnCheatSheet = document.getElementById('btn-cheat-sheet');
-      const modalGuide = document.getElementById('modal-guide');
-      const btnCloseModal = document.getElementById('btn-close-modal');
-      const btnCloseModalFooter = document.getElementById('btn-close-modal-footer');
-
-      let currentMode = 'mangal-to-kruti';
-      // Default to TRUE so user visually sees real Hindi directly!
-      let isVisualHindiActive = true;
-
-      const SAMPLES = {
-        'mangal-to-kruti': `भारत देश विविधताओं से भरा एक महान और सुंदर राष्ट्र है। यहाँ की संस्कृति, कला, इतिहास और परंपराएं पूरे विश्व में विख्यात हैं। प्रेम, शांति, सद्भाव और विज्ञान के क्षेत्र में हमारा देश निरंतर प्रगति कर रहा है।`,
-        'kruti-to-mangal': `Hkkjr ns'k fofo/krkvksa ls Hkjk ,d egku vkSj lqanj jk"Vª gSA ;gk¡ dh laLÑfr] dyk] bfrgkl vkSj ijaijk,a iwjs fo'o esa fo[;kr gSaA`,
-        'roman-to-kruti': `mera bharat mahan desh hai. namaste aap sabhi ka swagat hai.`
-      };
-
-    // Word file drag and drop highlight effects
-    ['dragenter', 'dragover'].forEach(evtName => {
-      fileDropZone.addEventListener(evtName, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        fileDropZone.classList.add('border-orange-500', 'bg-orange-50/40');
-      });
-    });
-
-    ['dragleave', 'drop'].forEach(evtName => {
-      fileDropZone.addEventListener(evtName, (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        fileDropZone.classList.remove('border-orange-500', 'bg-orange-50/40');
-      });
-    });
-
-    btnDocxShortcut.addEventListener('click', () => {
-      docFileInput.click();
-    });
-
-    /**
-     * XML DOCX ENGINE: Modifies XML directly to preserve all layout, alignment, margins,
-     * tables, columns, headers, footers and text-run properties without rewriting the document.
-     */
-    function convertTextInDocxXml(xmlString, targetFont) {
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(xmlString, "application/xml");
-
-      // Extract and convert every text node inside <w:t> tags
-      const textNodes = xmlDoc.getElementsByTagName("w:t");
-      let extractedCombinedText = [];
-
-      for (let i = 0; i < textNodes.length; i++) {
-        const node = textNodes[i];
-        const originalText = node.textContent;
-        if (!originalText || !originalText.trim()) continue;
-
-        let convertedText = originalText;
-        if (currentMode === 'mangal-to-kruti') {
-          convertedText = Converter.unicodeToKruti(originalText);
-        } else if (currentMode === 'kruti-to-mangal') {
-          convertedText = Converter.krutiToUnicode(originalText);
-        } else if (currentMode === 'roman-to-kruti') {
-          const unicodeIntermediate = Converter.romanToDevanagari(originalText);
-          convertedText = Converter.unicodeToKruti(unicodeIntermediate);
-        }
-
-        node.textContent = convertedText;
-        extractedCombinedText.push(originalText);
-
-        // Preserve and update font styling on parent run (<w:r>) so MS Word renders correctly
-        const runNode = node.parentNode;
-        if (runNode && runNode.nodeName === "w:r") {
-          let rPr = runNode.getElementsByTagName("w:rPr")[0];
-          if (!rPr) {
-            rPr = xmlDoc.createElement("w:rPr");
-            runNode.insertBefore(rPr, runNode.firstChild);
-          }
-          let rFonts = rPr.getElementsByTagName("w:rFonts")[0];
-          if (!rFonts) {
-            rFonts = xmlDoc.createElement("w:rFonts");
-            rPr.appendChild(rFonts);
-          }
-          rFonts.setAttribute("w:ascii", targetFont);
-          rFonts.setAttribute("w:hAnsi", targetFont);
-          rFonts.setAttribute("w:cs", targetFont);
-        }
-      }
-
-      const serializer = new XMLSerializer();
-      return {
-        modifiedXml: serializer.serializeToString(xmlDoc),
-        rawText: extractedCombinedText.join(" ")
-      };
+      if (n === 'र' && FULL[c]) { out += FULL[c] + ('टठडढ'.includes(c) ? 'ª' : 'z'); i += 2; continue; }
+      out += last ? fullOf(c) : halfOf(c);
+      i++;
     }
+    let pre = '', mt = '';
+    for (const ch of matras) { if (ch === '\u093F') pre = 'f'; else mt += MT[ch] || ''; }
+    if (cs.length === 1 && base === 'र' && (matras === '\u0941' || matras === '\u0942')) { out = matras === '\u0941' ? '#' : '$'; mt = ''; }
+    if (cs.length === 1 && base === 'क' && matras === '\u0943') { out = 'Ñ'; mt = ''; }
+    return pre + out + mt + (TAIL[tail] || '') + (reph ? 'Z' : '');
+  }
 
-    async function processAndConvertDocxArchive(arrayBuffer) {
-      if (typeof JSZip === 'undefined') {
-        throw new Error('JSZip library is not loaded');
-      }
+  function unicodeToKruti(text) {
+    if (!text) return '';
+    let s = text.replace(/[\u0958-\u095F]/g, m => NUK_DEC[m]);
+    s = s.replace(/[().,\-]/g, m => PUNCT[m]);               // ASCII punctuation first
+    s = s.replace(SYL, syllable);                             // consonant clusters
+    s = s.replace(/[\u0900-\u097F\u200C\u200D]/g, m => IND[m] !== undefined ? IND[m] : m); // vowels, signs, danda
+    return s;
+  }
 
-      const zip = await JSZip.loadAsync(arrayBuffer);
-      originalDocxZip = zip;
+  /* ---------- Kruti Dev -> Unicode ---------- */
+  const K2U = {
+    // vowels
+    'vkS':'औ','vks':'ओ','vkW':'ऑ','vk':'आ','v':'अ','bZ':'ई','b':'इ','m':'उ','Å':'ऊ',',s':'ऐ',',W':'ऍ',',':'ए','_':'ऋ',
+    // matras and signs
+    'kW':'ॉ','ks':'ो','kS':'ौ','k':'ा','h':'ी','q':'ु','w':'ू','`':'ृ','s':'े','S':'ै','a':'ं','¡':'ँ','%':'ः','W':'ॅ','~':H,
+    'f':'\uE000','Z':'\uE001',
+    // conjuncts
+    '{k':'क्ष','{':'क्ष्','=':'त्र','K':'ज्ञ','J':'श्र','Ø':'क्र','Ý':'फ्र','z':'्र','ª':'्र','|':'द्य','}':'द्व',')':'द्ध',
+    'ê':'ट्ट','ë':'ठ्ठ','ì':'ड्ड','í':'द्द','Ù':'त्त','ô':'क्क','á':'ह्म','â':'ह्य','à':'ह्व','Ñ':'कृ','#':'रु','$':'रू',
+    // full consonants that end in a stem
+    '[k':'ख','?k':'घ','.k':'ण','Fk':'थ','/k':'ध','èk':'ध','Hk':'भ',"'k":'श','"k':'ष',
+    // half letters
+    '[':'ख्','?':'घ्','F':'थ्','/':'ध्','è':'ध्','H':'भ्',"'":'श्','"':'ष्','.':'ण्','¸':'य्',
+    'D':'क्','X':'ग्','P':'च्','T':'ज्','R':'त्','U':'न्','I':'प्','¶':'फ्','C':'ब्','E':'म्','Y':'ल्','O':'व्','L':'स्',
+    // nukta
+    'M+':'ड'+NK,'<+':'ढ'+NK,'d+':'क'+NK,'[k+':'ख'+NK,'x+':'ग'+NK,'t+':'ज'+NK,'Q+':'फ'+NK,';+':'य'+NK,'+':NK,
+    // full consonants
+    'd':'क','x':'ग','³':'ङ','p':'च','N':'छ','t':'ज','>':'झ','¥':'ञ','V':'ट','B':'ठ','M':'ड','<':'ढ',
+    'r':'त','n':'द','u':'न','i':'प','Q':'फ','c':'ब','e':'म',';':'य','j':'र','y':'ल','G':'ळ','o':'व','l':'स','g':'ह',
+    // punctuation
+    'A':'।','¼':'(','½':')','&':'-','-':'.','º':'.','°':'.',']':',','¿':'?','À':'!'
+  };
+  const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const K2U_RE = new RegExp(Object.keys(K2U).sort((a, b) => b.length - a.length).map(esc).join('|'), 'g');
+  const CL = '(?:[\\u0915-\\u0939]\\u093C?\\u094D)*[\\u0915-\\u0939]\\u093C?';
+  const CHHOTI = new RegExp(`\\uE000(${CL})`, 'g');
+  const REPH = new RegExp(`(${CL})([\\u093E-\\u094C\\u0901\\u0902\\u0903]*)\\uE001`, 'g');
+  const NUK_RE = /([कखगजडढफय])\u093C/g;
 
-      const isKruti = currentMode.includes('kruti');
-      const targetFont = isKruti ? 'Kruti Dev 010' : 'Mangal';
+  function krutiToUnicode(text) {
+    if (!text) return '';
+    let s = text.replace(/(\d)\.(\d)/g, '$1\uE002$2');       // keep 1.1 style numbering
+    s = s.replace(K2U_RE, m => K2U[m]);
+    s = s.replace(CHHOTI, '$1\u093F');                        // chhoti-ee goes after the cluster
+    s = s.replace(REPH, 'र्$1$2');                            // reph goes before the cluster
+    s = s.replace(/[\uE000\uE001]/g, '').replace(/\uE002/g, '.');
+    s = s.replace(NUK_RE, (m, c) => NUK_PRE[c]);
+    s = s.replace(/([0-9])\s*रू\s*/g, '$1: ').replace(/रू(?=\s)/g, 'रू');
+    return s;
+  }
 
-      let extractedFullText = '';
-
-      // Target all XML parts containing text: document body, headers, footers, footnotes, endnotes
-      const xmlTargetFiles = Object.keys(zip.files).filter(fileName => 
-        fileName.startsWith('word/') && fileName.endsWith('.xml') &&
-        (fileName.includes('document') || fileName.includes('header') || fileName.includes('footer') || fileName.includes('footnote') || fileName.includes('endnote'))
-      );
-
-      for (const filePath of xmlTargetFiles) {
-        const fileXml = await zip.file(filePath).async("string");
-        const { modifiedXml, rawText } = convertTextInDocxXml(fileXml, targetFont);
-        zip.file(filePath, modifiedXml);
-
-        if (filePath.includes('document.xml')) {
-          extractedFullText = rawText;
-        }
-      }
-
-      // Generate the modified .docx blob with 100% original structure intact
-      convertedDocxBlob = await zip.generateAsync({
-        type: "blob",
-        mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      });
-
-      return { convertedDocxBlob, extractedFullText };
+  /* ---------- Roman -> Devanagari (approximate phonetic) ---------- */
+  const MATRA = {aa:'ा',a:'',i:'ि',ee:'ी',u:'ु',oo:'ू',e:'े',ai:'ै',o:'ो',au:'ौ'};
+  const VOW = {aa:'आ',a:'अ',i:'इ',ee:'ई',u:'उ',oo:'ऊ',e:'ए',ai:'ऐ',o:'ओ',au:'औ'};
+  const CONS = {ksh:'क्ष',tra:'त्र',gya:'ज्ञ',shr:'श्र',kh:'ख',gh:'घ',chh:'छ',ch:'च',jh:'झ',th:'थ',dh:'ध',ph:'फ',bh:'भ',sh:'श',
+    k:'क',g:'ग',j:'ज',t:'त',d:'द',n:'न',p:'प',f:'फ',b:'ब',m:'म',y:'य',r:'र',l:'ल',v:'व',w:'व',s:'स',h:'ह',z:'ज़',q:'क़',c:'क',x:'क्स'};
+  function romanWord(word) {
+    if (!/^[a-zA-Z]+$/.test(word)) return word;
+    const w = word.toLowerCase(); let out = '', i = 0, afterCons = false;
+    while (i < w.length) {
+      let c = null, len = 0;
+      for (const L of [3, 2, 1]) { const k = w.substr(i, L); if (k.length === L && CONS[k]) { c = CONS[k]; len = L; break; } }
+      if (c) { if (afterCons) out += H; out += c; afterCons = true; i += len; continue; }
+      const d = w.substr(i, 2), v = ['aa','ee','oo','ai','au'].includes(d) ? d : w[i];
+      if (VOW[v] !== undefined) { out += afterCons ? MATRA[v] : VOW[v]; afterCons = false; i += v.length; continue; }
+      out += w[i]; afterCons = false; i++;
     }
+    return out;
+  }
+  const romanToDevanagari = t => t ? t.split(/(\s+|[.,!?:;"'()])/).map(romanWord).join('') : '';
 
-    // Handle Word File / Text File upload and conversion
-    docFileInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+  return { unicodeToKruti, krutiToUnicode, romanToDevanagari };
+})();
 
-      fileProcessingIndicator.classList.remove('hidden');
-      lastUploadedFileName = file.name;
-      attachedFileName.textContent = file.name;
-      attachedFileBadge.classList.remove('hidden');
+/* ================= DOCX ENGINE ================= */
+const DEVA = /[\u0900-\u097F]/;
+function convertText(text, mode) {
+  if (mode === 'm2k') return Conv.unicodeToKruti(text);
+  if (mode === 'k2m') return Conv.krutiToUnicode(text);
+  return Conv.unicodeToKruti(Conv.romanToDevanagari(text));
+}
+const runFont = r => { const f = r.getElementsByTagName('w:rFonts')[0]; return f ? (f.getAttribute('w:ascii') || f.getAttribute('w:hAnsi') || '') : ''; };
+const rPrKey = r => { const p = r.getElementsByTagName('w:rPr')[0]; return p ? new XMLSerializer().serializeToString(p) : ''; };
 
-      try {
-        const fileExt = file.name.split('.').pop().toLowerCase();
-
-        if (fileExt === 'docx') {
-          const arrayBuffer = await file.arrayBuffer();
-          const { convertedDocxBlob: blob, extractedFullText } = await processAndConvertDocxArchive(arrayBuffer);
-          
-          btnDownloadAttachedDocx.classList.remove('hidden');
-          inputText.value = extractedFullText || "Document loaded successfully.";
-          performConversion();
-          showToast(`"${file.name}" converted! All tables, fonts & alignments preserved.`);
-        } else if (fileExt === 'txt') {
-          const text = await file.text();
-          inputText.value = text;
-          convertedDocxBlob = null;
-          btnDownloadAttachedDocx.classList.add('hidden');
-          performConversion();
-          showToast(`File "${file.name}" loaded and converted!`);
-        } else {
-          showToast('Please upload a .docx (MS Word) or .txt file.', false);
-        }
-      } catch (err) {
-        console.error('Word file read error:', err);
-        showToast('Error reading the Word file. Please verify it is a valid .docx.', false);
-      } finally {
-        fileProcessingIndicator.classList.add('hidden');
+/* Word splits words across many runs. Join neighbouring plain runs with identical formatting
+   so that reordering rules (chhoti-ee, reph, nukta) see the whole word. */
+function mergeRuns(xmlDoc) {
+  const SKIP = ['w:proofErr', 'w:bookmarkStart', 'w:bookmarkEnd'];
+  const isPlain = n => n.nodeName === 'w:r' && n.getElementsByTagName('w:t').length > 0 &&
+    Array.from(n.children).every(c => c.nodeName === 'w:rPr' || c.nodeName === 'w:t');
+  for (const p of Array.from(xmlDoc.getElementsByTagName('w:p'))) {
+    let group = [], key = null;
+    const flush = () => {
+      if (group.length > 1) {
+        const first = group[0];
+        const all = group.map(r => Array.from(r.getElementsByTagName('w:t')).map(t => t.textContent).join('')).join('');
+        const ts = Array.from(first.getElementsByTagName('w:t'));
+        ts.slice(1).forEach(t => first.removeChild(t));
+        ts[0].textContent = all;
+        group.slice(1).forEach(r => r.parentNode.removeChild(r));
       }
-    });
-
-    function triggerDocxDownload() {
-      if (!convertedDocxBlob) {
-        // If user didn't upload a docx first, notify them to upload or copy text
-        showToast("Please upload a .docx file above to download the formatted Word document.", false);
-        return;
-      }
-
-      const url = URL.createObjectURL(convertedDocxBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      const baseName = lastUploadedFileName.replace(/\.[^/.]+$/, "");
-      const isKruti = currentMode.includes('kruti');
-      const suffix = isKruti ? "_KrutiDev.docx" : "_Mangal.docx";
-      a.download = `${baseName}${suffix}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-      showToast("Downloaded document with zero alignment disruption!");
+      group = []; key = null;
+    };
+    for (const n of Array.from(p.childNodes)) {
+      if (isPlain(n)) {
+        const k = rPrKey(n);
+        if (group.length && k !== key) flush();
+        group.push(n); key = k;
+      } else if (!SKIP.includes(n.nodeName)) flush();
     }
+    flush();
+  }
+}
 
-    btnDownloadAttachedDocx.addEventListener('click', (e) => {
-      e.stopPropagation();
-      triggerDocxDownload();
-    });
+function convertXml(xml, mode, convertAll) {
+  const doc = new DOMParser().parseFromString(xml, 'application/xml');
+  if (doc.getElementsByTagName('parsererror').length) return { xml, text: '' };
+  mergeRuns(doc);
+  const toKruti = mode !== 'k2m';
+  const target = toKruti ? 'Kruti Dev 010' : 'Mangal';
+  const lines = [];
+  for (const p of Array.from(doc.getElementsByTagName('w:p'))) {
+    let line = '';
+    for (const t of Array.from(p.getElementsByTagName('w:t'))) {
+      const src = t.textContent;
+      line += src;
+      if (!src.trim()) continue;
+      const run = t.parentNode;
+      let go = false;
+      if (mode === 'm2k') go = DEVA.test(src);
+      else if (mode === 'r2k') go = !DEVA.test(src) && /[a-zA-Z]/.test(src);
+      else go = !DEVA.test(src) && /[^\s\d]/.test(src) && (convertAll || /kruti/i.test(runFont(run)));
+      if (!go) continue;
+      t.textContent = convertText(src, mode);
+      t.setAttribute('xml:space', 'preserve');
+      if (run.nodeName !== 'w:r') continue;
+      let rPr = run.getElementsByTagName('w:rPr')[0];
+      if (!rPr) { rPr = doc.createElement('w:rPr'); run.insertBefore(rPr, run.firstChild); }
+      let f = rPr.getElementsByTagName('w:rFonts')[0];
+      if (!f) { f = doc.createElement('w:rFonts'); rPr.insertBefore(f, rPr.firstChild); }
+      ['w:asciiTheme', 'w:hAnsiTheme', 'w:cstheme', 'w:eastAsiaTheme'].forEach(a => f.removeAttribute(a));
+      ['w:ascii', 'w:hAnsi', 'w:cs'].forEach(a => f.setAttribute(a, target));
+    }
+    lines.push(line);
+  }
+  return { xml: new XMLSerializer().serializeToString(doc), text: lines.join('\n') };
+}
 
-    btnDownloadDocx.addEventListener('click', triggerDocxDownload);
+let originalBuf = null, convertedBlob = null, uploadedName = 'Document.docx';
 
-    // Handle custom local TTF font upload
-    fontUpload.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        try {
-          const fontData = await file.arrayBuffer();
-          const customFont = new FontFace('KrutiDev010', fontData);
-          await customFont.load();
-          document.fonts.add(customFont);
-          showToast(`Custom font loaded: ${file.name}!`);
-          applyFontRendering();
-        } catch (err) {
-          showToast('Failed to load local font file.', false);
-        }
-      });
+async function buildDocx(mode, convertAll) {
+  const zip = await JSZip.loadAsync(originalBuf);                // always start from the untouched original
+  const files = Object.keys(zip.files).filter(f => /^word\/.*\.xml$/.test(f) && /document|header|footer|footnote|endnote/.test(f));
+  let text = '';
+  for (const f of files) {
+    const r = convertXml(await zip.file(f).async('string'), mode, convertAll);
+    zip.file(f, r.xml);
+    if (/word\/document\.xml$/.test(f)) text = r.text;
+  }
+  convertedBlob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE',
+    mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' });
+  return text;
+}
 
-      function showToast(message, isSuccess = true) {
-        const toast = document.getElementById('toast');
-        const toastMsg = document.getElementById('toast-message');
-        const toastIcon = document.getElementById('toast-icon');
+/* Source text shown in the input box = original text of the document */
+async function extractDocxText() {
+  const zip = await JSZip.loadAsync(originalBuf);
+  const doc = new DOMParser().parseFromString(await zip.file('word/document.xml').async('string'), 'application/xml');
+  mergeRuns(doc);
+  return Array.from(doc.getElementsByTagName('w:p')).map(p =>
+    Array.from(p.getElementsByTagName('w:t')).map(t => t.textContent).join('')).join('\n');
+}
 
-        toastMsg.textContent = message;
-        toastIcon.className = isSuccess 
-          ? 'fa-solid fa-circle-check text-emerald-400' 
-          : 'fa-solid fa-circle-exclamation text-amber-400';
+/* ================= UI ================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const $ = id => document.getElementById(id);
+  const input = $('input'), output = $('output');
+  let mode = 'm2k', visual = true;
 
-        toast.classList.remove('translate-y-[-100%]', 'opacity-0');
-        toast.classList.add('translate-y-0', 'opacity-100');
+  const SAMPLES = {
+    m2k: 'भारत देश विविधताओं से भरा एक महान और सुंदर राष्ट्र है। शिक्षा का स्वरूप क्या है? पढ़ाई, कर्म, धर्म, विद्यालय, क्षमा, संस्कृति।',
+    k2m: 'Hkkjr ns\'k fofo/krkvksa ls Hkjk ,d egku vkSj lqanj jk"Vª gSA f'k{kk dk Lo:i D;k gS\\ i<+kbZ] deZ] /keZ] fo|ky;] {kek] laLÑfr',
+    r2k: 'mera bharat mahan desh hai. namaste aap sabhi ka swagat hai.'
+  };
+  const META = {
+    m2k: ['Mangal (Unicode) input', 'Kruti Dev 010 output', 'Type or paste Devanagari text'],
+    k2m: ['Kruti Dev 010 input (raw ASCII)', 'Mangal (Unicode) output', 'Paste raw Kruti Dev text'],
+    r2k: ['Roman Hinglish input', 'Kruti Dev 010 output', 'Phonetic: namaste, bharat, shanti']
+  };
 
-        setTimeout(() => {
-          toast.classList.remove('translate-y-0', 'opacity-100');
-          toast.classList.add('translate-y-[-100%]', 'opacity-0');
-        }, 2600);
-      }
+  function toast(msg, ok = true) {
+    const t = $('toast'); t.textContent = msg; t.className = 'show' + (ok ? '' : ' err');
+    clearTimeout(toast.t); toast.t = setTimeout(() => t.className = '', 2800);
+  }
+  const words = s => s.trim() ? s.trim().split(/\s+/).length : 0;
+  function stats() {
+    $('inC').textContent = input.value.length; $('inW').textContent = words(input.value);
+    $('outC').textContent = output.value.length; $('outW').textContent = words(output.value);
+  }
+  function fonts() {
+    const outKruti = mode !== 'k2m';
+    // Kruti text only looks like Hindi when drawn with the Kruti font; raw view uses a plain font.
+    output.className = outKruti ? (visual ? 'kruti' : 'latin') : 'deva';
+    input.className = mode === 'k2m' ? (visual ? 'kruti' : 'latin') : (mode === 'r2k' ? 'latin' : 'deva');
+    $('viewWrap').style.display = 'inline';
+    $('vVisual').classList.toggle('on', visual); $('vRaw').classList.toggle('on', !visual);
+    $('krutiNote').style.display = outKruti ? '' : 'none';
+  }
+  const convertAll = () => $('allRuns').checked;
 
-      function updateStats() {
-        const inVal = inputText.value;
-        const outVal = outputText.value;
+  async function refreshDocx() {
+    if (!originalBuf) return;
+    try { await buildDocx(mode, convertAll()); $('btnDocxTop').hidden = false; }
+    catch (e) { console.error(e); toast('Could not rebuild the .docx', false); }
+  }
 
-        inputChars.textContent = inVal.length;
-        inputWords.textContent = inVal.trim() === '' ? 0 : inVal.trim().split(/\s+/).length;
+  function run(rebuild = false) {
+    output.value = convertText(input.value, mode);
+    stats();
+    if (rebuild) refreshDocx();
+  }
 
-        outputChars.textContent = outVal.length;
-        outputWords.textContent = outVal.trim() === '' ? 0 : outVal.trim().split(/\s+/).length;
-      }
+  function setMode(m, rebuild = true) {
+    mode = m;
+    document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.mode === m));
+    [$('inTitle').textContent, $('outTitle').textContent, $('inHint').textContent] = META[m];
+    fonts(); run(rebuild);
+  }
 
-      function performConversion() {
-        const source = inputText.value;
-        if (!source) {
-          outputText.value = '';
-          updateStats();
-          return;
-        }
+  $('tabs').addEventListener('click', e => { const b = e.target.closest('button'); if (b) setMode(b.dataset.mode); });
+  input.addEventListener('input', () => { if ($('realtime').checked) run(); else stats(); });
+  $('btnConvert').addEventListener('click', () => run(true));
+  $('allRuns').addEventListener('change', () => refreshDocx());
+  $('vVisual').addEventListener('click', () => { visual = true; fonts(); });
+  $('vRaw').addEventListener('click', () => { visual = false; fonts(); });
+  $('btnSample').addEventListener('click', () => { input.value = SAMPLES[mode]; run(); toast('Sample loaded'); });
+  $('btnClear').addEventListener('click', () => { input.value = ''; run(); input.focus(); });
+  $('btnPaste').addEventListener('click', async () => {
+    try { input.value = await navigator.clipboard.readText(); run(); } catch { input.focus(); toast('Press Ctrl+V to paste', false); }
+  });
+  $('btnCopy').addEventListener('click', async () => {
+    if (!output.value) return toast('Nothing to copy', false);
+    try { await navigator.clipboard.writeText(output.value); }
+    catch { output.select(); document.execCommand('copy'); }
+    toast(mode === 'k2m' ? 'Copied' : 'Copied. In Word, set the font to Kruti Dev 010.');
+  });
+  $('btnTxt').addEventListener('click', () => {
+    if (!output.value) return toast('Nothing to download', false);
+    save(new Blob([output.value], { type: 'text/plain;charset=utf-8' }), mode === 'k2m' ? 'mangal_unicode.txt' : 'kruti_dev_010.txt');
+  });
+  function save(blob, name) {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+  function downloadDocx(e) {
+    e && e.stopPropagation();
+    if (!convertedBlob) return toast('Upload a .docx file first', false);
+    save(convertedBlob, uploadedName.replace(/\.[^.]+$/, '') + (mode === 'k2m' ? '_Mangal.docx' : '_KrutiDev.docx'));
+  }
+  $('btnDocx').addEventListener('click', downloadDocx);
+  $('btnDocxTop').addEventListener('click', downloadDocx);
 
-        let result = '';
+  $('fontUpload').addEventListener('change', async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      const face = new FontFace('KrutiDev010', await f.arrayBuffer()); await face.load();
+      document.fonts.add(face); toast('Font loaded: ' + f.name); fonts();
+    } catch { toast('Could not load that font file', false); }
+  });
 
-        if (currentMode === 'mangal-to-kruti') {
-          result = Converter.unicodeToKruti(source);
-        } else if (currentMode === 'kruti-to-mangal') {
-          result = Converter.krutiToUnicode(source);
-        } else if (currentMode === 'roman-to-kruti') {
-          const unicodeIntermediate = Converter.romanToDevanagari(source);
-          result = Converter.unicodeToKruti(unicodeIntermediate);
-        }
+  /* File drop / upload */
+  const drop = $('drop');
+  ['dragenter', 'dragover'].forEach(n => drop.addEventListener(n, e => { e.preventDefault(); drop.classList.add('over'); }));
+  ['dragleave', 'drop'].forEach(n => drop.addEventListener(n, e => { e.preventDefault(); drop.classList.remove('over'); }));
+  drop.addEventListener('click', e => { if (!e.target.closest('button')) $('docInput').click(); });
+  drop.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
+  $('docInput').addEventListener('change', e => handleFile(e.target.files[0]));
 
-        outputText.value = result;
-        updateStats();
+  async function handleFile(file) {
+    if (!file) return;
+    const ext = file.name.split('.').pop().toLowerCase();
+    uploadedName = file.name; $('fileName').textContent = file.name;
+    try {
+      if (ext === 'docx') {
+        originalBuf = await file.arrayBuffer();
+        input.value = await extractDocxText();
+        // Pick a sensible direction from the content
+        const guess = DEVA.test(input.value) ? 'm2k' : 'k2m';
+        if (guess !== mode && mode !== 'r2k') setMode(guess, false);
+        run(); await refreshDocx();
+        toast('Converted. Layout, tables and alignment are untouched.');
+      } else if (ext === 'txt') {
+        originalBuf = null; convertedBlob = null; $('btnDocxTop').hidden = true;
+        input.value = await file.text(); run(); toast('Text file converted');
+      } else toast('Please choose a .docx or .txt file', false);
+    } catch (err) { console.error(err); toast('Could not read this file. Is it a valid .docx?', false); }
+  }
 
-        // If an original DOCX archive is loaded, re-convert its XML in memory so downloads stay in sync
-        if (originalDocxZip) {
-          const isKruti = currentMode.includes('kruti');
-          const targetFont = isKruti ? 'Kruti Dev 010' : 'Mangal';
-          const xmlTargetFiles = Object.keys(originalDocxZip.files).filter(fileName => 
-            fileName.startsWith('word/') && fileName.endsWith('.xml') &&
-            (fileName.includes('document') || fileName.includes('header') || fileName.includes('footer') || fileName.includes('footnote') || fileName.includes('endnote'))
-          );
-
-          Promise.all(xmlTargetFiles.map(async (filePath) => {
-            const fileXml = await originalDocxZip.file(filePath).async("string");
-            const { modifiedXml } = convertTextInDocxXml(fileXml, targetFont);
-            originalDocxZip.file(filePath, modifiedXml);
-          })).then(() => {
-            originalDocxZip.generateAsync({
-              type: "blob",
-              mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-            }).then(blob => {
-              convertedDocxBlob = blob;
-            });
-          });
-        }
-      }
-
-      function applyFontRendering() {
-        if (currentMode === 'kruti-to-mangal') {
-          // Output is Unicode Mangal, so standard Devanagari font
-          outputText.className = "w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-mangal text-base leading-relaxed placeholder:text-slate-400 custom-scrollbar";
-          inputText.className = isVisualHindiActive 
-            ? "w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-kruti-render text-lg leading-relaxed placeholder:text-slate-400 custom-scrollbar"
-            : "w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-sans text-base leading-relaxed placeholder:text-slate-400 custom-scrollbar";
-        } else {
-          // Output is Kruti Dev
-          if (isVisualHindiActive) {
-            outputText.className = "w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-kruti-render text-lg leading-relaxed placeholder:text-slate-400 custom-scrollbar";
-            viewFontBtn.className = "px-2.5 py-1 rounded-md bg-white text-orange-700 shadow-xs font-bold flex items-center gap-1";
-            viewRawBtn.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1";
-          } else {
-            outputText.className = "w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-sans text-base leading-relaxed placeholder:text-slate-400 custom-scrollbar";
-            viewRawBtn.className = "px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-xs font-bold flex items-center gap-1";
-            viewFontBtn.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1";
-          }
-        }
-      }
-
-      function setMode(mode) {
-        currentMode = mode;
-
-        if (mode === 'mangal-to-kruti') {
-          tabMangalKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs font-semibold";
-          tabRomanKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900";
-          btnSwapDir.classList.remove('opacity-40', 'pointer-events-none');
-          
-          inputTitle.textContent = "Mangal (Unicode) Input";
-          inputBadge.textContent = "Standard Hindi";
-          inputBadge.className = "text-[11px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium";
-          inputText.className = "w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-mangal text-base leading-relaxed placeholder:text-slate-400 custom-scrollbar";
-          inputText.placeholder = "यहाँ मंगल यूनिकोड टेक्स्ट लिखें या पेस्ट करें...";
-          inputHint.textContent = "Type or paste standard Devanagari text";
-
-          outputTitle.textContent = "Kruti Dev 010 Output";
-          outputBadge.textContent = "Remington Font";
-          outputBadge.className = "text-[11px] px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 font-medium";
-          krutiPreviewToggleWrapper.classList.remove('hidden');
-          krutiGuidanceBar.classList.remove('hidden');
-
-        } else if (mode === 'kruti-to-mangal') {
-          tabMangalKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs font-semibold";
-          tabRomanKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900";
-          btnSwapDir.classList.remove('opacity-40', 'pointer-events-none');
-
-          inputTitle.textContent = "Kruti Dev 010 Input";
-          inputBadge.textContent = "Remington Font";
-          inputBadge.className = "text-[11px] px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 font-medium";
-          inputText.placeholder = "यहाँ कृतिदेव 010 टेक्स्ट पेस्ट करें (उदा. Hkkjr)...";
-          inputHint.textContent = "Paste Kruti Dev text (renders as Hindi or ASCII)";
-
-          outputTitle.textContent = "Mangal (Unicode) Output";
-          outputBadge.textContent = "Clean Devanagari";
-          outputBadge.className = "text-[11px] px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium";
-          krutiPreviewToggleWrapper.classList.add('hidden');
-          krutiGuidanceBar.classList.add('hidden');
-
-        } else if (mode === 'roman-to-kruti') {
-          tabRomanKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs font-semibold";
-          tabMangalKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900";
-          btnSwapDir.classList.add('opacity-40', 'pointer-events-none');
-
-          inputTitle.textContent = "Roman English (Hinglish) Input";
-          inputBadge.textContent = "Phonetic Type";
-          inputBadge.className = "text-[11px] px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 border border-blue-200 font-medium";
-          inputText.className = "w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-sans text-base leading-relaxed placeholder:text-slate-400 custom-scrollbar";
-          inputText.placeholder = "Type in English phonetic letters (e.g. 'mera bharat mahan', 'namaste')...";
-          inputHint.textContent = "Phonetic Roman letters are transliterated to Kruti Dev";
-
-          outputTitle.textContent = "Kruti Dev 010 Output";
-          outputBadge.textContent = "Remington Font";
-          outputBadge.className = "text-[11px] px-2 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 font-medium";
-          krutiPreviewToggleWrapper.classList.remove('hidden');
-          krutiGuidanceBar.classList.remove('hidden');
-        }
-
-        applyFontRendering();
-        performConversion();
-      }
-
-      inputText.addEventListener('input', () => {
-        if (realtimeToggle.checked) {
-          performConversion();
-        } else {
-          updateStats();
-        }
-      });
-
-      btnManualConvert.addEventListener('click', performConversion);
-
-      tabMangalKruti.addEventListener('click', () => setMode('mangal-to-kruti'));
-      tabRomanKruti.addEventListener('click', () => setMode('roman-to-kruti'));
-
-      btnSwapDir.addEventListener('click', () => {
-        if (currentMode === 'mangal-to-kruti') {
-          const prevOutput = outputText.value;
-          setMode('kruti-to-mangal');
-          inputText.value = prevOutput;
-          performConversion();
-        } else if (currentMode === 'kruti-to-mangal') {
-          const prevOutput = outputText.value;
-          setMode('mangal-to-kruti');
-          inputText.value = prevOutput;
-          performConversion();
-        }
-      });
-
-      // Toggle between Visual Devanagari View and Raw ASCII
-      viewFontBtn.addEventListener('click', () => {
-        isVisualHindiActive = true;
-        applyFontRendering();
-        showToast("Visual Hindi rendering active (Kruti Dev 010 font)!");
-      });
-
-      viewRawBtn.addEventListener('click', () => {
-        isVisualHindiActive = false;
-        applyFontRendering();
-        showToast("Switched to Raw ASCII view (Latin characters)!");
-      });
-
-      // Clipboard Copy
-      btnCopy.addEventListener('click', () => {
-        if (!outputText.value) {
-          showToast("Nothing to copy!", false);
-          return;
-        }
-
-        outputText.select();
-        outputText.setSelectionRange(0, 99999);
-        try {
-          const successful = document.execCommand('copy');
-          if (successful) {
-            showToast("Copied! Paste into Word/InDesign and select 'Kruti Dev 010'.");
-          } else {
-            showToast("Unable to copy automatically.", false);
-          }
-        } catch (err) {
-          showToast("Copy failed, please select and copy manually.", false);
-        }
-      });
-
-      // Paste Action
-      btnPaste.addEventListener('click', async () => {
-        try {
-          if (navigator.clipboard && navigator.clipboard.readText) {
-            const clipText = await navigator.clipboard.readText();
-            inputText.value = clipText;
-            performConversion();
-            showToast("Pasted from clipboard!");
-          } else {
-            inputText.focus();
-            showToast("Press Ctrl+V / Cmd+V to paste.", false);
-          }
-        } catch (e) {
-          inputText.focus();
-          showToast("Press Ctrl+V / Cmd+V to paste.", false);
-        }
-      });
-
-      btnClear.addEventListener('click', () => {
-        inputText.value = '';
-        outputText.value = '';
-        updateStats();
-        inputText.focus();
-      });
-
-      btnDownload.addEventListener('click', () => {
-        if (!outputText.value) {
-          showToast("No content to download!", false);
-          return;
-        }
-        const blob = new Blob([outputText.value], { type: 'text/plain;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const filename = currentMode.includes('kruti') ? 'kruti_dev_010.txt' : 'mangal_unicode.txt';
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        showToast(`Saved as ${filename}`);
-      });
-
-      btnLoadSample.addEventListener('click', () => {
-        const sample = SAMPLES[currentMode] || SAMPLES['mangal-to-kruti'];
-        inputText.value = sample;
-        performConversion();
-        showToast("Loaded sample test text!");
-      });
-
-      // Modal Handlers
-      const openModal = () => modalGuide.classList.remove('hidden');
-      const closeModal = () => modalGuide.classList.add('hidden');
-      btnCheatSheet.addEventListener('click', openModal);
-      btnCloseModal.addEventListener('click', closeModal);
-      btnCloseModalFooter.addEventListener('click', closeModal);
-      modalGuide.addEventListener('click', (e) => {
-        if (e.target === modalGuide) closeModal();
-      });
-
-      // Initialize
-      setMode('mangal-to-kruti');
-      inputText.value = SAMPLES['mangal-to-kruti'];
-      performConversion();
-    });
-  </script>
+  setMode('m2k', false);
+  input.value = SAMPLES.m2k; run();
+});
+</script>
 </body>
 </html>
