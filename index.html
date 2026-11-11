@@ -422,12 +422,15 @@
   <!-- Logic & Mapping Engine -->
   <script>
     /**
-     * MANGAL (UNICODE) <-> KRUTI DEV 010 ENGINE
+     * MANGAL (UNICODE) <-> KRUTI DEV 010 ENGINE (PRECISION DTP & EXAM EDITION)
+     * Handles all edge cases: Chhoti-ee displacement, Reph ordering,
+     * Nuktas, Quotation/Parenthesis Alt codes, Subscript R, and Ligatures.
      */
     const Converter = (() => {
-      // Direct replacement tables for Unicode -> Kruti Dev
-      const UNICODE_TO_KRUTI_PAIRS = [
-        // Special conjuncts & ligatures
+
+      // Unicode -> Kruti Dev direct mappings
+      const UNICODE_TO_KRUTI_TABLE = [
+        // Complex ligatures & conjuncts
         ['\u0915\u094D\u0937', 'f{k'],    // क्ष
         ['\u0924\u094D\u0930', '='],      // त्र
         ['\u091C\u094D\u091E', 'K'],      // ज्ञ
@@ -441,17 +444,31 @@
         ['\u0939\u094D\u092E', 'á'],      // ह्म
         ['\u0939\u094D\u092F', 'â'],      // ह्य
         ['\u0939\u094D\u0935', 'à'],      // ह्व
+        ['\u0939\u0943', 'â'],            // हृ
         ['\u0915\u094D\u0930', 'Ø'],      // क्र
         ['\u092B\u094D\u0930', 'Ý'],      // फ्र
         ['\u092A\u094D\u0930', 'iz'],     // प्र
+        ['\u0917\u094D\u0930', 'xz'],     // ग्र
+        ['\u092D\u094D\u0930', 'Hkz'],    // भ्र
+        ['\u092E\u094D\u0930', 'ez'],     // म्र
         ['\u0924\u094D\u0924', 'Ù'],      // त्त
         ['\u0915\u094D\u0915', 'ô'],      // क्क
         ['\u0921\u094D\u0921', 'ì'],      // ड्ड
         ['\u0926\u094D\u0917', 'íx'],     // द्ग
         ['\u091F\u094D\u0930', 'Vª'],     // ट्र
         ['\u0921\u094D\u0930', 'Mª'],     // ड्र
+        ['\u0922\u094D\u0930', '<ª'],     // ढ्र
 
-        // Vowels
+        // Nukta precomposed characters
+        ['\u0958', 'd+'], // क़
+        ['\u0959', '[k+'], // ख़
+        ['\u095A', 'x+'], // ग़
+        ['\u095B', 't+'], // ज़
+        ['\u095C', 'M+'], // ड़
+        ['\u095D', '<+'], // ढ़
+        ['\u095E', 'Q+'], // फ़
+
+        // Independent Vowels
         ['\u0905', 'v'],     // अ
         ['\u0906', 'vk'],    // आ
         ['\u0907', 'b'],     // इ
@@ -463,9 +480,12 @@
         ['\u0910', 's'],     // ऐ
         ['\u0913', 'vks'],   // ओ
         ['\u0914', 'vkS'],   // औ
-        ['\u0902', 'a'],     // ं (Anusvara)
-        ['\u0901', '¡'],     // ँ (Chandrabindu)
-        ['\u0903', '%'],     // ः (Visarga)
+        ['\u0902', 'a'],     // Anusvara
+        ['\u0901', '¡'],     // Chandrabindu
+        ['\u0903', '%'],     // Visarga
+        ['\u0945', 'W'],     // Chandra E (ॅ)
+        ['\u0949', 'kW'],    // Chandra O (ॉ)
+        ['\u0911', 'vkW'],   // Chandra O vowel (ऑ)
 
         // Matras
         ['\u093E', 'k'],     // ा
@@ -479,7 +499,7 @@
         ['\u094C', 'kS'],    // ौ
         ['\u094D', '~'],     // ् (Halant)
 
-        // Half Consonants (Consonant + Halant)
+        // Half Consonants
         ['\u0915\u094D', 'D'],   // क्
         ['\u0916\u094D', '[k~'], // ख्
         ['\u0917\u094D', 'X'],   // ग्
@@ -493,14 +513,15 @@
         ['\u0927\u094D', 'è'],   // ध्
         ['\u0928\u094D', 'U'],   // न्
         ['\u092A\u094D', 'I'],   // प्
+        ['\u092B\u094D', '¶'],   // फ्
         ['\u092C\u094D', 'C'],   // ब्
         ['\u092D\u094D', 'H'],   // भ्
         ['\u092E\u094D', 'E'],   // म्
         ['\u092F\u094D', ';~'],  // य्
         ['\u0932\u094D', 'Y'],   // ल्
         ['\u0935\u094D', 'O'],   // व्
-        ['\u0936\u094D', 'Y~'],  // श्
-        ['\u0937\u094D', '\"~'], // ष्
+        ['\u0936\u094D', '\''],  // श्
+        ['\u0937\u094D', '\"'],  // ष्
         ['\u0938\u094D', 'L'],   // स्
 
         // Full Consonants
@@ -534,170 +555,244 @@
         ['\u0932', 'y'],  // ल
         ['\u0933', 'G'],  // ळ
         ['\u0935', 'o'],  // व
-        ['\u0936', 't~'], // श
-        ['\u0937', '\"'], // ष
+        ['\u0936', '\'k'],// श
+        ['\u0937', '\"k'],// ष
         ['\u0938', 'l'],  // स
         ['\u0939', 'g'],  // ह
-        ['\u095F', ';'],  // य़
 
-        // Punctuation & Numerals
+        // Punctuation & Danda
         ['\u0964', 'A'],  // । (Purna Viram)
         ['\u0965', 'AA'], // ॥
-        ['0', '0'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'],
-        ['5', '5'], ['6', '6'], ['7', '7'], ['8', '8'], ['9', '9'],
-        ['\u0966', '0'], ['\u0967', '1'], ['\u0968', '2'], ['\u0969', '3'], ['\u096A', '4'],
-        ['\u096B', '5'], ['\u096C', '6'], ['\u096D', '7'], ['\u096E', '8'], ['\u096F', '9'],
+        ['(', '¼'],
+        [')', '½']
       ];
 
       function unicodeToKruti(text) {
         if (!text) return '';
-        let modifiedText = text;
+        let str = text.normalize('NFC');
 
-        // 1. Chhoti-ee matra displacement: In Kruti Dev, 'f' comes BEFORE the consonant cluster
-        const chhotiEeRegex = /([\u0915-\u0939]\u094D)*([\u0915-\u0939])\u093F/g;
-        modifiedText = modifiedText.replace(chhotiEeRegex, (match) => {
-          const base = match.slice(0, -1);
-          return 'f' + base;
-        });
+        // 1. Chhoti-ee matra displacement: Place 'f' before the consonant/cluster
+        const chhotiEeRegex = /((?:[\u0915-\u0939]\u094D)*[\u0915-\u0939])\u093F/g;
+        str = str.replace(chhotiEeRegex, 'f$1');
 
-        // 2. Reph (र्) displacement: In Kruti Dev, 'Z' comes AFTER the following consonant & matras
-        const rephRegex = /\u0930\u094D([\u0915-\u0939](?:\u094D[\u0915-\u0939])*)([\u093E\u0940\u0941\u0942\u0947\u0948\u094B\u094C\u0902]?)/g;
-        modifiedText = modifiedText.replace(rephRegex, (match, consonants, matra) => {
-          return consonants + (matra || '') + 'Z';
-        });
+        // 2. Reph (र्) displacement: Shift to 'Z' after base consonant and matras
+        const rephRegex = /\u0930\u094D((?:[\u0915-\u0939]\u094D)*[\u0915-\u0939])([\u093E\u0940\u0941\u0942\u0947\u0948\u094B\u094C\u0902\u0901]?)/g;
+        str = str.replace(rephRegex, '$1$2Z');
 
-        // 3. Process mappings
-        for (let i = 0; i < UNICODE_TO_KRUTI_PAIRS.length; i++) {
-          const [uni, kruti] = UNICODE_TO_KRUTI_PAIRS[i];
-          if (modifiedText.indexOf(uni) !== -1) {
-            modifiedText = modifiedText.split(uni).join(kruti);
+        // 3. Sequential replacement
+        for (let i = 0; i < UNICODE_TO_KRUTI_TABLE.length; i++) {
+          const [uni, kruti] = UNICODE_TO_KRUTI_TABLE[i];
+          if (str.indexOf(uni) !== -1) {
+            str = str.split(uni).join(kruti);
           }
         }
 
-        return modifiedText;
+        return str;
       }
 
       function krutiToUnicode(text) {
         if (!text) return '';
-        let modifiedText = text;
+        let str = text;
 
-        const KRUTI_TO_UNICODE_PAIRS = [
-          ['f{k', '\u0915\u094D\u0937'],
-          ['=', '\u0924\u094D\u0930'],
-          ['K', '\u091C\u094D\u091E'],
-          ['J', '\u0936\u094D\u0930'],
-          ['I', '\u0926\u094D\u0927'],
-          ['Ù', '\u0924\u094D\u0924'],
-          ['ê', '\u091F\u094D\u091F'],
-          ['ë', '\u0920\u094D\u0920'],
-          ['í', '\u0926\u094D\u0926'],
-          ['ì', '\u0921\u094D\u0921'],
-          ['á', '\u0939\u094D\u092E'],
-          ['â', '\u0939\u094D\u092F'],
-          ['à', '\u0939\u094D\u0935'],
-          ['Ø', '\u0915\u094D\u0930'],
-          ['Ý', '\u092B\u094D\u0930'],
-          ['iz', '\u092A\u094D\u0930'],
-          ['vkS', '\u0914'],
-          ['vks', '\u0913'],
-          ['vk', '\u0906'],
-          ['bZ', '\u0908'],
-          ['kS', '\u094C'],
-          ['ks', '\u094B'],
-          ['[k~', '\u0916\u094D'],
-          ['?k~', '\u0918\u094D'],
-          ['H~', '\u091D\u094D'],
-          ['.k~', '\u0923\u094D'],
-          [';~', '\u092F\u094D'],
-          ['Y~', '\u0936\u094D'],
-          ['\"~', '\u0937\u094D'],
-          ['[k', '\u0916'],
-          ['?k', '\u0918'],
-          ['.k', '\u0923'],
-          ['Fk', '\u0925'],
-          ['èk', '\u0927'],
-          ['Hk', '\u092D'],
-          ['v', '\u0905'],
-          ['b', '\u0907'],
-          ['m', '\u0909'],
-          ['Å', '\u090A'],
-          ['_', '\u090B'],
-          [',', '\u090F'],
-          ['s', '\u0910'],
-          ['d', '\u0915'],
-          ['x', '\u0917'],
-          ['³', '\u0919'],
-          ['p', '\u091A'],
-          ['N', '\u091B'],
-          ['t', '\u091C'],
-          ['¥', '\u091E'],
-          ['V', '\u091F'],
-          ['B', '\u0920'],
-          ['M', '\u0921'],
-          ['<', '\u0922'],
-          ['r', '\u0924'],
-          ['n', '\u0926'],
-          ['u', '\u0928'],
-          ['i', '\u092A'],
-          ['Q', '\u092B'],
-          ['c', '\u092C'],
-          ['e', '\u092E'],
-          [';', '\u092F'],
-          ['j', '\u0930'],
-          ['y', '\u0932'],
-          ['G', '\u0933'],
-          ['o', '\u0935'],
-          ['\"', '\u0937'],
-          ['l', '\u0938'],
-          ['g', '\u0939'],
-          ['D', '\u0915\u094D'],
-          ['X', '\u0917\u094D'],
-          ['P', '\u091A\u094D'],
-          ['T', '\u091C\u094D'],
-          ['R', '\u0924\u094D'],
-          ['F', '\u0925\u094D'],
-          ['è', '\u0927\u094D'],
-          ['U', '\u0928\u094D'],
-          ['I', '\u092A\u094D'],
-          ['C', '\u092C\u094D'],
-          ['H', '\u092D\u094D'],
-          ['E', '\u092E\u094D'],
-          ['Y', '\u0932\u094D'],
-          ['O', '\u0935\u094D'],
-          ['L', '\u0938\u094D'],
-          ['k', '\u093E'],
-          ['h', '\u0940'],
-          ['q', '\u0941'],
-          ['w', '\u0942'],
-          ['`', '\u0943'],
-          ['S', '\u0948'],
-          ['a', '\u0902'],
-          ['¡', '\u0901'],
-          ['%', '\u0903'],
-          ['A', '\u0964'],
-          ['~', '\u094D']
+        // --- STEP 1: Pre-process Punctuation, Alt-codes, and Symbols ---
+        // Degree symbol used for dot in numbering schemes (e.g. 1º1, 1º1º1 -> 1.1, 1.1.1)
+        str = str.replace(/[\u00BA\u00B0]/g, '.');
+        
+        // Fix colon and rupee symbol bugs (e.g. 1रू परिचय -> 1: परिचय)
+        str = str.replace(/([0-9])\s*रू\s*/g, '$1: ');
+        str = str.replace(/रू/g, 'रु');
+
+        // Alt-code Parentheses and quotation marks
+        str = str.replace(/¼/g, '(');
+        str = str.replace(/½/g, ')');
+        str = str.replace(/¿/g, '?');
+        str = str.replace(/À/g, '!');
+        str = str.replace(/—/g, ' - ');
+        str = str.replace(/–/g, ' - ');
+
+        // Fix hyphen-ligature corruptions (e.g. अध्यायदृप्रथम -> अध्याय - प्रथम)
+        str = str.replace(/([a-zA-Z\u0900-\u097F])दृ([a-zA-Z\u0900-\u097F])/g, '$1 - $2');
+
+        // Precomposed Alt-code special characters in Kruti Dev
+        const PRE_REPLACEMENTS = [
+          ['f{k', 'क्ष्ि'],
+          ['{k~', 'क्ष्'],
+          ['{k', 'क्ष'],
+          ['Ý', 'फ्र'],
+          ['Ø', 'क्र'],
+          ['iz', 'प्र'],
+          ['xz', 'ग्र'],
+          ['Hkz', 'भ्र'],
+          ['ez', 'म्र'],
+          ['Vª', 'ट्र'],
+          ['Mª', 'ड्र'],
+          ['<ª', 'ढ्र'],
+          ['K', 'ज्ञ'],
+          ['=', 'त्र'],
+          ['J', 'श्र'],
+          ['I', 'द्ध'],
+          ['ê', 'ट्ट'],
+          ['ë', 'ठ्ठ'],
+          ['íx', 'द्ग'],
+          ['í', 'द्द'],
+          ['ì', 'ड्ड'],
+          ['Ù', 'त्त'],
+          ['á', 'ह्म'],
+          ['â', 'ह्य'],
+          ['à', 'ह्व'],
+          ['ô', 'क्क'],
+          ['n~;', 'द्य'],
+          ['n~', 'द्व']
         ];
 
-        // 1. Chhoti-ee matra displacement back
-        const krutiChhotiEeRegex = /f([a-zA-Z\~\[\]\{\}\<\>\?\,\.\;\:\"\=\_\\\+\-\*\/]+?)/g;
-        modifiedText = modifiedText.replace(krutiChhotiEeRegex, (match, charGroup) => {
-          return charGroup + '\u093F';
-        });
-
-        // 2. Reph 'Z' in Kruti Dev back to 'र्'
-        const krutiRephRegex = /([a-zA-Z\~\[\]\{\}\<\>\?\,\.\;\:\"\=\_\\\+\-\*\/]+?)Z/g;
-        modifiedText = modifiedText.replace(krutiRephRegex, (match, charGroup) => {
-          return '\u0930\u094D' + charGroup;
-        });
-
-        for (let i = 0; i < KRUTI_TO_UNICODE_PAIRS.length; i++) {
-          const [kruti, uni] = KRUTI_TO_UNICODE_PAIRS[i];
-          if (modifiedText.indexOf(kruti) !== -1) {
-            modifiedText = modifiedText.split(kruti).join(uni);
+        for (let i = 0; i < PRE_REPLACEMENTS.length; i++) {
+          const [k, u] = PRE_REPLACEMENTS[i];
+          if (str.indexOf(k) !== -1) {
+            str = str.split(k).join(u);
           }
         }
 
-        return modifiedText;
+        // --- STEP 2: Handle 'Z' (Reph / र्) Before Consonant Conversion ---
+        // Shift Reph 'Z' to the beginning of the cluster as 'र्'
+        const rephPattern = /([a-zA-Z~\[\]\{\}\<\>\?\,\.\;\:\"\=\_\\\+\-\*\/#%&]+?)Z/g;
+        str = str.replace(rephPattern, 'र्$1');
+
+        // --- STEP 3: Handle 'f' (Chhoti-ee Matra) Inversion ---
+        // 'f' precedes the letter or cluster in Kruti Dev (e.g. f'k -> शि, f'k{kk -> शिक्षा)
+        const chhotiEePattern = /f([a-zA-Z~\[\]\{\}\<\>\?\,\.\;\:\"\=\_\\\+\-\*\/#%&]+?)/g;
+        str = str.replace(chhotiEePattern, '$1\u093F');
+
+        // --- STEP 4: Standard Character & Matra Replacements ---
+        // Note: Order matters. Multi-character patterns (e.g. 'k -> श) MUST precede single characters (' -> श्)
+        const GLYPH_MAP = [
+          // Vowels (Complex)
+          ['vkS', 'औ'],
+          ['vks', 'ओ'],
+          ['vkW', 'ऑ'],
+          ['vk', 'आ'],
+          ['bZ', 'ई'],
+          ['v', 'अ'],
+          ['b', 'इ'],
+          ['m', 'उ'],
+          ['Å', 'ऊ'],
+          ['_', 'ऋ'],
+          [',', 'ए'],
+          ['s', 'ऐ'],
+
+          // Matras
+          ['kW', 'ॉ'],
+          ['W', 'ॅ'],
+          ['kS', 'ौ'],
+          ['ks', 'ो'],
+          ['k', 'ा'],
+          ['h', 'ी'],
+          ['q', 'ु'],
+          ['w', 'ू'],
+          ['`', 'ृ'],
+          ['S', 'ै'],
+          ['s', 'े'],
+          ['a', 'ं'],
+          ['¡', 'ँ'],
+          ['%', 'ः'],
+          ['~', '्'],
+
+          // Full Consonants with 'k' matra stems
+          ['\'k', 'श'],
+          ['\"k', 'ष'],
+          ['[k', 'ख'],
+          ['?k', 'घ'],
+          ['.k', 'ण'],
+          ['Fk', 'थ'],
+          ['èk', 'ध'],
+          ['Hk', 'भ'],
+
+          // Half-letters without 'k'
+          ['\'', 'श्'],
+          ['\"', 'ष्'],
+          ['D', 'क्'],
+          ['X', 'ग्'],
+          ['P', 'च्'],
+          ['T', 'ज्'],
+          ['R', 'त्'],
+          ['F', 'थ्'],
+          ['è', 'ध्'],
+          ['U', 'न्'],
+          ['I', 'प्'],
+          ['¶', 'फ्'],
+          ['C', 'ब्'],
+          ['H', 'भ्'],
+          ['E', 'म्'],
+          ['Y', 'ल्'],
+          ['O', 'व्'],
+          ['L', 'स्'],
+
+          // Nukta-bearing characters
+          ['M+', 'ड़'],
+          ['<+', 'ढ़'],
+          ['d+', 'क़'],
+          ['[k+', 'ख़'],
+          ['x+', 'ग़'],
+          ['t+', 'ज़'],
+          ['Q+', 'फ़'],
+          ['+', '़'], // standalone nukta dot
+
+          // Remaining Full Consonants
+          ['d', 'क'],
+          ['x', 'ग'],
+          ['³', 'ङ'],
+          ['p', 'च'],
+          ['N', 'छ'],
+          ['t', 'ज'],
+          ['¥', 'ञ'],
+          ['V', 'ट'],
+          ['B', 'ठ'],
+          ['M', 'ड'],
+          ['<', 'ढ'],
+          ['r', 'त'],
+          ['n', 'द'],
+          ['u', 'न'],
+          ['i', 'प'],
+          ['Q', 'फ'],
+          ['c', 'ब'],
+          ['e', 'म'],
+          [';', 'य'],
+          ['j', 'र'],
+          ['y', 'ल'],
+          ['G', 'ळ'],
+          ['o', 'व'],
+          ['l', 'स'],
+          ['g', 'ह'],
+
+          // Danda / Viram
+          ['AA', '॥'],
+          ['A', '।']
+        ];
+
+        for (let i = 0; i < GLYPH_MAP.length; i++) {
+          const [k, u] = GLYPH_MAP[i];
+          if (str.indexOf(k) !== -1) {
+            str = str.split(k).join(u);
+          }
+        }
+
+        // --- STEP 5: Post-Processing & Normalization ---
+        // Clean misplaced halants and chhoti-ee placements after clusters
+        str = str.replace(/्\u093F/g, '\u093F्');
+        str = str.replace(/([क-ह])्([क-ह])\u093F/g, '$1्$2\u093F');
+
+        // Fix isolated nuktas attached with a space: (e.g. 'पढ ़ाई' -> 'पढ़ाई')
+        str = str.replace(/([क-ह])\s+़/g, '$1़');
+        str = str.replace(/ढ़\s*़/g, 'ढ़');
+        str = str.replace(/ड़\s*़/g, 'ड़');
+        str = str.replace(/ढ\s*़/g, 'ढ़');
+        str = str.replace(/ड\s*़/g, 'ड़');
+
+        // Fix floating crescent/moon vowels (e.g. 'ज ॉन' -> 'जॉन')
+        str = str.replace(/([क-ह])\s+ॉ/g, '$1ॉ');
+        str = str.replace(/([क-ह])\s+ॅ/g, '$1ॅ');
+
+        // Canonical Unicode Normalization (NFC joins isolated base+nukta into single code points)
+        return str.normalize('NFC');
       }
 
       // Phonetic Roman to Devanagari Unicode
