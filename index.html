@@ -16,8 +16,13 @@
   <!-- FontAwesome Icons for UI -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <!-- JSZip for low-level DOCX archive manipulation -->
+  <!-- JSZip with Multi-CDN Fallback -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script>
+    if (typeof JSZip === 'undefined') {
+      document.write('<script src="https://unpkg.com/jszip@3.10.1/dist/jszip.min.js"><\/script>');
+    }
+  </script>
 
   <script>
     tailwind.config = {
@@ -119,15 +124,15 @@
           <span>Load .TTF Font</span>
           <input type="file" id="font-upload" accept=".ttf,.woff,.otf" class="hidden">
         </label>
-        <button id="btn-docx-shortcut" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200">
+        <button id="btn-docx-shortcut" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg transition-colors border border-blue-200 cursor-pointer">
           <i class="fa-solid fa-file-word text-blue-600"></i>
           <span>Word (.docx) Upload</span>
         </button>
-        <button id="btn-cheat-sheet" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
+        <button id="btn-cheat-sheet" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors cursor-pointer">
           <i class="fa-solid fa-circle-info text-slate-500"></i>
           <span>Guide</span>
         </button>
-        <button id="btn-load-sample" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg transition-colors">
+        <button id="btn-load-sample" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200 rounded-lg transition-colors cursor-pointer">
           <i class="fa-solid fa-wand-magic-sparkles"></i>
           <span>Sample</span>
         </button>
@@ -141,7 +146,7 @@
     <!-- Word (.docx) & File Drag-and-Drop Zone -->
     <div id="file-drop-zone" class="relative group border-2 border-dashed border-slate-300 hover:border-orange-500 bg-white hover:bg-orange-50/30 rounded-2xl p-5 transition-all cursor-pointer shadow-xs">
       <input type="file" id="doc-file-input" accept=".docx,.txt" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pointer-events-none">
         <div class="flex items-center gap-4">
           <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center text-xl shrink-0 shadow-md shadow-blue-500/20 group-hover:scale-105 transition-transform">
             <i class="fa-solid fa-file-word"></i>
@@ -155,16 +160,16 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-2 shrink-0">
+        <div class="flex items-center gap-2 shrink-0 pointer-events-auto">
           <span id="attached-file-badge" class="hidden text-xs font-medium px-2.5 py-1 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1.5">
             <i class="fa-solid fa-check"></i>
             <span id="attached-file-name">filename.docx</span>
           </span>
-          <button id="btn-download-attached-docx" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors z-20">
+          <button id="btn-download-attached-docx" type="button" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg shadow-xs transition-colors z-20 cursor-pointer">
             <i class="fa-solid fa-file-arrow-down"></i>
             <span>Download Converted .docx</span>
           </button>
-          <div class="px-3 py-1.5 rounded-lg bg-slate-100 group-hover:bg-orange-100 group-hover:text-orange-700 text-xs font-semibold text-slate-700 border border-slate-200 flex items-center gap-1.5">
+          <div class="px-3 py-1.5 rounded-lg bg-slate-100 group-hover:bg-orange-100 group-hover:text-orange-700 text-xs font-semibold text-slate-700 border border-slate-200 flex items-center gap-1.5 pointer-events-none">
             <i class="fa-solid fa-arrow-up-from-bracket"></i>
             <span>Browse Document</span>
           </div>
@@ -179,35 +184,30 @@
     
     <!-- Mode Selector Tabs & Global Controls Bar -->
     <div class="bg-white p-3 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-4">
-      <!-- Mode Tabs -->
       <div class="flex bg-slate-100 p-1 rounded-xl text-xs sm:text-sm font-medium w-full sm:w-auto">
-        <button id="tab-mangal-kruti" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs transition-all font-semibold">
+        <button id="tab-mangal-kruti" type="button" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs transition-all font-semibold cursor-pointer">
           <i class="fa-solid fa-arrows-rotate text-orange-600"></i>
           <span>Mangal ⇄ Kruti Dev</span>
         </button>
-        <button id="tab-roman-kruti" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all">
+        <button id="tab-roman-kruti" type="button" class="flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 transition-all cursor-pointer">
           <i class="fa-solid fa-keyboard text-blue-600"></i>
           <span>Roman Hinglish ➔ Kruti / Mangal</span>
         </button>
       </div>
 
-      <!-- Controls -->
       <div class="flex items-center flex-wrap gap-3 w-full sm:w-auto justify-end">
-        <!-- Live Instant Convert Toggle -->
         <label class="inline-flex items-center gap-2 cursor-pointer select-none text-xs font-medium text-slate-600">
           <span>Real-time conversion:</span>
           <input type="checkbox" id="realtime-toggle" checked class="sr-only peer">
           <div class="w-9 h-5 bg-slate-200 peer-focus:outline-hidden rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600 relative"></div>
         </label>
 
-        <!-- Swap Direction Button -->
-        <button id="btn-swap-dir" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200 active:scale-95">
+        <button id="btn-swap-dir" type="button" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors border border-slate-200 active:scale-95 cursor-pointer">
           <i class="fa-solid fa-repeat"></i>
           <span id="swap-dir-label">Swap Direction</span>
         </button>
 
-        <!-- Explicit Convert Button -->
-        <button id="btn-manual-convert" class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 rounded-lg shadow-xs transition-all active:scale-95">
+        <button id="btn-manual-convert" type="button" class="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold text-white bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 rounded-lg shadow-xs transition-all active:scale-95 cursor-pointer">
           <i class="fa-solid fa-bolt"></i>
           <span>Convert Now</span>
         </button>
@@ -227,10 +227,10 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <button id="btn-paste" title="Paste from clipboard" class="p-1.5 text-slate-500 hover:text-slate-800 rounded-md hover:bg-slate-200 transition-colors text-xs">
+            <button id="btn-paste" type="button" title="Paste from clipboard" class="p-1.5 text-slate-500 hover:text-slate-800 rounded-md hover:bg-slate-200 transition-colors text-xs cursor-pointer">
               <i class="fa-regular fa-paste"></i>
             </button>
-            <button id="btn-clear" title="Clear text" class="p-1.5 text-slate-500 hover:text-rose-600 rounded-md hover:bg-slate-200 transition-colors text-xs">
+            <button id="btn-clear" type="button" title="Clear text" class="p-1.5 text-slate-500 hover:text-rose-600 rounded-md hover:bg-slate-200 transition-colors text-xs cursor-pointer">
               <i class="fa-regular fa-trash-can"></i>
             </button>
           </div>
@@ -245,7 +245,7 @@
             <span>Chars: <strong id="input-chars" class="text-slate-700">0</strong></span>
             <span>Words: <strong id="input-words" class="text-slate-700">0</strong></span>
           </div>
-          <span class="text-[11px] text-slate-400" id="input-hint">Type or paste Hindi Unicode text</span>
+          <span class="text-[11px] text-slate-400" id="input-hint">Type or paste standard Devanagari text</span>
         </div>
       </div>
 
@@ -260,27 +260,27 @@
 
           <div class="flex items-center gap-2">
             <div id="kruti-preview-toggle-wrapper" class="flex items-center bg-slate-200/80 p-0.5 rounded-lg text-xs font-medium">
-              <button id="view-font-btn" class="px-2.5 py-1 rounded-md bg-white text-orange-700 shadow-xs font-bold flex items-center gap-1" title="Visually renders real Hindi characters using the Kruti Dev font engine">
+              <button id="view-font-btn" type="button" class="px-2.5 py-1 rounded-md bg-white text-orange-700 shadow-xs font-bold flex items-center gap-1 cursor-pointer" title="Visually renders real Hindi characters using Kruti Dev font">
                 <i class="fa-solid fa-eye text-xs"></i>
                 <span>Visual Hindi View</span>
               </button>
-              <button id="view-raw-btn" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1" title="Show raw ASCII text (e.g. Hkkjr) required for pasting into MS Word / PageMaker">
+              <button id="view-raw-btn" type="button" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1 cursor-pointer" title="Show raw ASCII text (e.g. Hkkjr) required for pasting into MS Word / PageMaker">
                 <i class="fa-solid fa-code text-xs"></i>
                 <span>Raw ASCII</span>
               </button>
             </div>
             
-            <button id="btn-copy" class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors">
+            <button id="btn-copy" type="button" class="inline-flex items-center gap-1.5 px-3 py-1 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors cursor-pointer">
               <i class="fa-regular fa-copy"></i>
               <span>Copy</span>
             </button>
             
             <div class="flex items-center gap-1">
-              <button id="btn-download-docx" class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors" title="Export converted document (.docx) with preserved formatting and alignments">
+              <button id="btn-download-docx" type="button" class="inline-flex items-center gap-1.5 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shadow-2xs transition-colors cursor-pointer" title="Export converted document (.docx) with preserved formatting and alignments">
                 <i class="fa-solid fa-file-word"></i>
                 <span>Download .docx</span>
               </button>
-              <button id="btn-download" title="Download text as .txt" class="p-1.5 text-slate-500 hover:text-slate-800 rounded-md hover:bg-slate-200 transition-colors text-xs">
+              <button id="btn-download" type="button" title="Download text as .txt" class="p-1.5 text-slate-500 hover:text-slate-800 rounded-md hover:bg-slate-200 transition-colors text-xs cursor-pointer">
                 <i class="fa-solid fa-download"></i>
               </button>
             </div>
@@ -352,7 +352,7 @@
           <i class="fa-solid fa-circle-question text-orange-600"></i>
           <h3 class="font-bold text-slate-900">Hindi Font Converter Guide</h3>
         </div>
-        <button id="btn-close-modal" class="text-slate-400 hover:text-slate-600 text-lg p-1">
+        <button id="btn-close-modal" type="button" class="text-slate-400 hover:text-slate-600 text-lg p-1 cursor-pointer">
           <i class="fa-solid fa-xmark"></i>
         </button>
       </div>
@@ -380,7 +380,7 @@
       </div>
 
       <div class="px-6 py-3 bg-slate-50 border-t border-slate-200 flex justify-end">
-        <button id="btn-close-modal-footer" class="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors">
+        <button id="btn-close-modal-footer" type="button" class="px-4 py-2 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors cursor-pointer">
           Got it
         </button>
       </div>
@@ -394,7 +394,7 @@
     </div>
   </footer>
 
-  <!-- Complete Conversion Engine -->
+  <!-- Conversion Engine & Script -->
   <script>
     const Converter = (() => {
 
@@ -564,9 +564,9 @@
         let str = text;
 
         // 1. Pre-process Degree dots, DTP hyphens, and Colons
-        str = str.replace(/[\u00BA\u00B0]/g, '.'); // 1º1 -> 1.1
-        str = str.replace(/दृ/g, ' - ');            // अध्यायदृप्रथम -> अध्याय - प्रथम
-        str = str.replace(/([0-9a-zA-Z\u0900-\u097F])\s*रू/g, '$1:'); // अध्याय 1रू -> अध्याय 1:
+        str = str.replace(/[\u00BA\u00B0]/g, '.'); // 1º1 -> 1.1[cite: 1]
+        str = str.replace(/दृ/g, ' - ');            // अध्यायदृप्रथम -> अध्याय - प्रथम[cite: 1]
+        str = str.replace(/([0-9a-zA-Z\u0900-\u097F])\s*रू/g, '$1: '); // अध्याय 1रू -> अध्याय 1:[cite: 1]
         str = str.replace(/रू/g, ':');
         str = str.replace(/¼/g, '(');
         str = str.replace(/½/g, ')');
@@ -847,6 +847,7 @@
         'roman-to-kruti': `mera bharat mahan desh hai. namaste aap sabhi ka swagat hai.`
       };
 
+      // Drag and drop events
       ['dragenter', 'dragover'].forEach(evtName => {
         fileDropZone.addEventListener(evtName, (e) => {
           e.preventDefault();
@@ -863,63 +864,93 @@
         });
       });
 
-      btnDocxShortcut.addEventListener('click', () => {
+      fileDropZone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        if (dt && dt.files && dt.files.length) {
+          handleFileProcessing(dt.files[0]);
+        }
+      });
+
+      btnDocxShortcut.addEventListener('click', (e) => {
+        e.stopPropagation();
         docFileInput.click();
       });
 
-      function convertTextInDocxXml(xmlString, targetFont) {
-        const parser = new DOMParser();
-        const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+      // Clear cached file on click so choosing the same file triggers change every time
+      docFileInput.addEventListener('click', (e) => {
+        e.stopPropagation();
+        docFileInput.value = null;
+      });
 
-        const textNodes = xmlDoc.getElementsByTagName("w:t");
-        let extractedCombinedText = [];
-
-        for (let i = 0; i < textNodes.length; i++) {
-          const node = textNodes[i];
-          const originalText = node.textContent;
-          if (!originalText || !originalText.trim()) continue;
-
-          let convertedText = originalText;
-          if (currentMode === 'mangal-to-kruti') {
-            convertedText = Converter.unicodeToKruti(originalText);
-          } else if (currentMode === 'kruti-to-mangal') {
-            convertedText = Converter.krutiToUnicode(originalText);
-          } else if (currentMode === 'roman-to-kruti') {
-            const unicodeIntermediate = Converter.romanToDevanagari(originalText);
-            convertedText = Converter.unicodeToKruti(unicodeIntermediate);
-          }
-
-          node.textContent = convertedText;
-          extractedCombinedText.push(originalText);
-
-          const runNode = node.parentNode;
-          if (runNode && runNode.nodeName === "w:r") {
-            let rPr = runNode.getElementsByTagName("w:rPr")[0];
-            if (!rPr) {
-              rPr = xmlDoc.createElement("w:rPr");
-              runNode.insertBefore(rPr, runNode.firstChild);
-            }
-            let rFonts = rPr.getElementsByTagName("w:rFonts")[0];
-            if (!rFonts) {
-              rFonts = xmlDoc.createElement("w:rFonts");
-              rPr.appendChild(rFonts);
-            }
-            rFonts.setAttribute("w:ascii", targetFont);
-            rFonts.setAttribute("w:hAnsi", targetFont);
-            rFonts.setAttribute("w:cs", targetFont);
-          }
+      docFileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+          handleFileProcessing(e.target.files[0]);
         }
+      });
 
-        const serializer = new XMLSerializer();
-        return {
-          modifiedXml: serializer.serializeToString(xmlDoc),
-          rawText: extractedCombinedText.join(" ")
-        };
+      function convertTextInDocxXml(xmlString, targetFont) {
+        try {
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(xmlString, "application/xml");
+
+          if (xmlDoc.getElementsByTagName("parsererror").length > 0) {
+            console.warn("XML parser error encountered, skipping file chunk.");
+            return { modifiedXml: xmlString, rawText: "" };
+          }
+
+          const textNodes = xmlDoc.getElementsByTagName("w:t");
+          let extractedRuns = [];
+
+          for (let i = 0; i < textNodes.length; i++) {
+            const node = textNodes[i];
+            const originalText = node.textContent;
+            if (!originalText) continue;
+
+            let converted = originalText;
+            if (currentMode === 'mangal-to-kruti') {
+              converted = Converter.unicodeToKruti(originalText);
+            } else if (currentMode === 'kruti-to-mangal') {
+              converted = Converter.krutiToUnicode(originalText);
+            } else if (currentMode === 'roman-to-kruti') {
+              const mid = Converter.romanToDevanagari(originalText);
+              converted = Converter.unicodeToKruti(mid);
+            }
+
+            node.textContent = converted;
+            if (originalText.trim()) extractedRuns.push(converted);
+
+            const runNode = node.parentNode;
+            if (runNode && runNode.nodeName === "w:r") {
+              let rPr = runNode.getElementsByTagName("w:rPr")[0];
+              if (!rPr) {
+                rPr = xmlDoc.createElement("w:rPr");
+                runNode.insertBefore(rPr, runNode.firstChild);
+              }
+              let rFonts = rPr.getElementsByTagName("w:rFonts")[0];
+              if (!rFonts) {
+                rFonts = xmlDoc.createElement("w:rFonts");
+                rPr.appendChild(rFonts);
+              }
+              rFonts.setAttribute("w:ascii", targetFont);
+              rFonts.setAttribute("w:hAnsi", targetFont);
+              rFonts.setAttribute("w:cs", targetFont);
+            }
+          }
+
+          const serializer = new XMLSerializer();
+          return {
+            modifiedXml: serializer.serializeToString(xmlDoc),
+            rawText: extractedRuns.join(" ")
+          };
+        } catch (err) {
+          console.error("XML Transformation Error:", err);
+          return { modifiedXml: xmlString, rawText: "" };
+        }
       }
 
       async function processAndConvertDocxArchive(arrayBuffer) {
         if (typeof JSZip === 'undefined') {
-          throw new Error('JSZip library is not loaded');
+          throw new Error('JSZip library is not available. Please check internet connection.');
         }
 
         const zip = await JSZip.loadAsync(arrayBuffer);
@@ -952,11 +983,11 @@
         return { convertedDocxBlob, extractedFullText };
       }
 
-      docFileInput.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
+      async function handleFileProcessing(file) {
         if (!file) return;
 
         fileProcessingIndicator.classList.remove('hidden');
+        fileProcessingIndicator.style.display = 'flex';
         lastUploadedFileName = file.name;
         attachedFileName.textContent = file.name;
         attachedFileBadge.classList.remove('hidden');
@@ -969,9 +1000,9 @@
             const { convertedDocxBlob: blob, extractedFullText } = await processAndConvertDocxArchive(arrayBuffer);
             
             btnDownloadAttachedDocx.classList.remove('hidden');
-            inputText.value = extractedFullText || "Document loaded successfully.";
+            inputText.value = extractedFullText || "Document loaded and converted successfully.";
             performConversion();
-            showToast(`"${file.name}" converted! All tables, fonts & alignments preserved.`);
+            showToast(`"${file.name}" converted! Tables & formatting preserved.`);
           } else if (fileExt === 'txt') {
             const text = await file.text();
             inputText.value = text;
@@ -984,11 +1015,12 @@
           }
         } catch (err) {
           console.error('Word file read error:', err);
-          showToast('Error reading the Word file. Please verify it is a valid .docx.', false);
+          showToast(`Error: ${err.message || 'Failed to read document.'}`, false);
         } finally {
           fileProcessingIndicator.classList.add('hidden');
+          fileProcessingIndicator.style.display = 'none';
         }
-      });
+      }
 
       function triggerDocxDownload() {
         if (!convertedDocxBlob) {
@@ -1015,7 +1047,10 @@
         triggerDocxDownload();
       });
 
-      btnDownloadDocx.addEventListener('click', triggerDocxDownload);
+      btnDownloadDocx.addEventListener('click', (e) => {
+        e.stopPropagation();
+        triggerDocxDownload();
+      });
 
       fontUpload.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -1115,12 +1150,12 @@
         } else {
           if (isVisualHindiActive) {
             outputText.className = "w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-kruti-render text-lg leading-relaxed placeholder:text-slate-400 custom-scrollbar";
-            viewFontBtn.className = "px-2.5 py-1 rounded-md bg-white text-orange-700 shadow-xs font-bold flex items-center gap-1";
-            viewRawBtn.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1";
+            viewFontBtn.className = "px-2.5 py-1 rounded-md bg-white text-orange-700 shadow-xs font-bold flex items-center gap-1 cursor-pointer";
+            viewRawBtn.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1 cursor-pointer";
           } else {
             outputText.className = "w-full flex-1 p-2 bg-transparent text-slate-900 border-none outline-hidden resize-none font-sans text-base leading-relaxed placeholder:text-slate-400 custom-scrollbar";
-            viewRawBtn.className = "px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-xs font-bold flex items-center gap-1";
-            viewFontBtn.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1";
+            viewRawBtn.className = "px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-xs font-bold flex items-center gap-1 cursor-pointer";
+            viewFontBtn.className = "px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 font-medium flex items-center gap-1 cursor-pointer";
           }
         }
       }
@@ -1129,8 +1164,8 @@
         currentMode = mode;
 
         if (mode === 'mangal-to-kruti') {
-          tabMangalKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs font-semibold";
-          tabRomanKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900";
+          tabMangalKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs font-semibold cursor-pointer";
+          tabRomanKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 cursor-pointer";
           btnSwapDir.classList.remove('opacity-40', 'pointer-events-none');
           
           inputTitle.textContent = "Mangal (Unicode) Input";
@@ -1147,8 +1182,8 @@
           krutiGuidanceBar.classList.remove('hidden');
 
         } else if (mode === 'kruti-to-mangal') {
-          tabMangalKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs font-semibold";
-          tabRomanKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900";
+          tabMangalKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs font-semibold cursor-pointer";
+          tabRomanKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 cursor-pointer";
           btnSwapDir.classList.remove('opacity-40', 'pointer-events-none');
 
           inputTitle.textContent = "Kruti Dev 010 Input";
@@ -1164,8 +1199,8 @@
           krutiGuidanceBar.classList.add('hidden');
 
         } else if (mode === 'roman-to-kruti') {
-          tabRomanKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs font-semibold";
-          tabMangalKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900";
+          tabRomanKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white text-slate-900 shadow-xs font-semibold cursor-pointer";
+          tabMangalKruti.className = "flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-slate-600 hover:text-slate-900 cursor-pointer";
           btnSwapDir.classList.add('opacity-40', 'pointer-events-none');
 
           inputTitle.textContent = "Roman English (Hinglish) Input";
@@ -1303,7 +1338,7 @@
         if (e.target === modalGuide) closeModal();
       });
 
-      // Initialize
+      // Default initialization
       setMode('mangal-to-kruti');
       inputText.value = SAMPLES['mangal-to-kruti'];
       performConversion();
