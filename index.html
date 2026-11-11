@@ -187,6 +187,10 @@ input[type=checkbox]{accent-color:var(--acc)}
 <script>
 /* ================= CONVERSION ENGINE ================= */
 const Conv = (() => {
+  /* ---- RU settings: change these two if your Kruti Dev keyboard uses other keys ---- */
+  const RU_SHORT = '#';   // रु  (e.g. रुपया -> #i;k)
+  const RU_LONG  = '$';   // रू  (e.g. रूप   -> $i)
+  const NUMBER_COLON = true; // Kruti Dev "1jw" heading marker -> "1:" (set false to keep रू)
   const H = '\u094D', NK = '\u093C';
   const NUK_PRE = {'क':'\u0958','ख':'\u0959','ग':'\u095A','ज':'\u095B','ड':'\u095C','ढ':'\u095D','फ':'\u095E','य':'\u095F'};
   const NUK_DEC = {}; for (const [b,p] of Object.entries(NUK_PRE)) NUK_DEC[p] = b + NK;
@@ -222,7 +226,7 @@ const Conv = (() => {
     }
     let pre = '', mt = '';
     for (const ch of matras) { if (ch === '\u093F') pre = 'f'; else mt += MT[ch] || ''; }
-    if (cs.length === 1 && base === 'र' && (matras === '\u0941' || matras === '\u0942')) { out = matras === '\u0941' ? '#' : '$'; mt = ''; }
+    if (cs.length === 1 && base === 'र' && (matras === '\u0941' || matras === '\u0942')) { out = matras === '\u0941' ? RU_SHORT : RU_LONG; mt = ''; }
     if (cs.length === 1 && base === 'क' && matras === '\u0943') { out = 'Ñ'; mt = ''; }
     return pre + out + mt + (TAIL[tail] || '') + (reph ? 'Z' : '');
   }
@@ -245,7 +249,7 @@ const Conv = (() => {
     'f':'\uE000','Z':'\uE001',
     // conjuncts
     '{k':'क्ष','{':'क्ष्','=':'त्र','K':'ज्ञ','J':'श्र','Ø':'क्र','Ý':'फ्र','z':'्र','ª':'्र','|':'द्य','}':'द्व',')':'द्ध',
-    'ê':'ट्ट','ë':'ठ्ठ','ì':'ड्ड','í':'द्द','Ù':'त्त','ô':'क्क','á':'ह्म','â':'ह्य','à':'ह्व','Ñ':'कृ','#':'रु','$':'रू',
+    'ê':'ट्ट','ë':'ठ्ठ','ì':'ड्ड','í':'द्द','Ù':'त्त','ô':'क्क','á':'ह्म','â':'ह्य','à':'ह्व','Ñ':'कृ',
     // full consonants that end in a stem
     '[k':'ख','?k':'घ','.k':'ण','Fk':'थ','/k':'ध','èk':'ध','Hk':'भ',"'k":'श','"k':'ष',
     // half letters
@@ -259,6 +263,7 @@ const Conv = (() => {
     // punctuation
     'A':'।','¼':'(','½':')','&':'-','-':'.','º':'.','°':'.',']':',','¿':'?','À':'!'
   };
+  K2U[RU_SHORT] = 'रु'; K2U[RU_LONG] = 'रू';
   const esc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const K2U_RE = new RegExp(Object.keys(K2U).sort((a, b) => b.length - a.length).map(esc).join('|'), 'g');
   const CL = '(?:[\\u0915-\\u0939]\\u093C?\\u094D)*[\\u0915-\\u0939]\\u093C?';
@@ -274,7 +279,8 @@ const Conv = (() => {
     s = s.replace(REPH, 'र्$1$2');                            // reph goes before the cluster
     s = s.replace(/[\uE000\uE001]/g, '').replace(/\uE002/g, '.');
     s = s.replace(NUK_RE, (m, c) => NUK_PRE[c]);
-    s = s.replace(/([0-9])\s*रू\s*/g, '$1: ').replace(/रू(?=\s)/g, 'रू');
+    s = s.replace(/(^|[^\u0915-\u0939])\u093C/g, '$1+');     // a '+' with no letter before it is just a plus sign
+    if (NUMBER_COLON) s = s.replace(/([0-9])\s*रू\s*/g, '$1: ');
     return s;
   }
 
